@@ -127,3 +127,21 @@ Stage Summary:
 - Fastfolio branding/CTA fully removed from both views + asset deleted — portfolio is now fully standalone
 - Quick question buttons slimmed one more notch (height only, per request)
 - Screenshots: scripts/verify_landing_no_cta.png, scripts/verify_chat_projects.png, scripts/verify_chat_footer.png
+
+---
+Task ID: 7
+Agent: Super Z (main agent)
+Task: Make quick action buttons smaller in height (user screenshot didn't upload — identified target via own screenshot + VLM analysis: the big square quick-action cards on landing page, 125x125px)
+
+Work Log:
+- User's pasted image (pasted_image_1790225650613.png) failed to upload — upload/ dir empty; took own screenshots instead and measured all button sets with agent-browser eval
+- Identified the tall buttons: landing page quick-action cards were 125x125 (aspect-square, py-8 md:p-10); footer pills already compact at 34px from previous rounds
+- VLM analysis of own screenshot confirmed: 5 square cards with vertically stacked icon+label = the visually tall buttons
+- landing-view.tsx: aspect-square + py-8/md:p-10 → fixed h-[84px] (width untouched via grid) — 125 → 84px height, ~33% shorter, now wide-flat landscape cards
+- chat-view.tsx: in-chat landing squares given same treatment (aspect-square py-4 → h-[84px]) for consistency
+- Verified: eslint + tsc clean on both files; agent-browser re-measure = 84x125 all five buttons; VLM confirms well-proportioned wide cards aligned with search bar; Projects click still opens chat and streams tool cards; footer pills still 34px; no console errors
+
+Stage Summary:
+- Landing quick-action buttons now compact landscape cards (125w x 84h) instead of tall squares — height only, as requested
+- In-chat landing squares match the same proportions; all flows verified intact
+- Screenshot: scripts/verify_shorter_buttons.png

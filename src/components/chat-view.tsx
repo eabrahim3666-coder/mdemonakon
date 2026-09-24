@@ -378,7 +378,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                         visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
                       }}
                       onClick={() => sendMessage(quickQueries[key])}
-                      className="border-border hover:bg-border/30 bg-card/30 mb-3 aspect-square w-full max-w-[124px] cursor-pointer rounded-2xl border py-4 shadow-none backdrop-blur-lg active:scale-95"
+                      className="border-border hover:bg-border/30 bg-card/30 mb-3 h-[84px] w-full max-w-[124px] cursor-pointer rounded-2xl border shadow-none backdrop-blur-lg active:scale-95"
                     >
                       <div className="flex h-full flex-col items-center justify-center gap-1 text-gray-700">
                         <Icon width={20} height={20} color={color} strokeWidth={2} />

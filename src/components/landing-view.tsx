@@ -163,7 +163,7 @@ export function LandingView({ onAsk }: LandingViewProps) {
               transition={{ delay: 0.75 + idx * 0.07, duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
               whileTap={{ scale: 0.95 }}
               data-slot="button"
-              className="border-border hover:bg-border/30 bg-card/30 aspect-square w-full cursor-pointer rounded-2xl border py-8 shadow-none backdrop-blur-lg md:p-10"
+              className="border-border hover:bg-border/30 bg-card/30 h-[84px] w-full cursor-pointer rounded-2xl border shadow-none backdrop-blur-lg"
               onClick={() => onAsk(quickQueries[action.label])}
             >
               <div className="flex h-full flex-col items-center justify-center gap-1 text-gray-700">
