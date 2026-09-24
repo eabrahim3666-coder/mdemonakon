@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the screenshot provided:\n\n1) **Shape:** The portrait container is **rounded-top** (or an arch shape). It has sharp corners at the bottom and rounded corners at the top.\n2) **Shadow/Halo:** **No**, the portrait image does not have any visible shadow or offset colored halo behind or around it.\n3) **'Open to work' badge:** Yes, there is a small badge. It looks okay, though it is positioned slightly off-center towards the bottom right of the image container.\n4) **Other shadows:** **No**, there are no other visible shadows on images in this screenshot. The UI elements (like the info cards and the input field) have subtle drop shadows, but no other images are present.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790275211,
+  "id": "2026092502400913ffa1d857ca467b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092502400913ffa1d857ca467b",
+  "usage": {
+    "completion_tokens": 152,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1767,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 1919
+  }
+}

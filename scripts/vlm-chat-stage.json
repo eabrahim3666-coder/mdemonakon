@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Yes, the screenshot shows an avatar/portrait image.\n\n1) **Shape:** Circle\n2) **Shadow:** Yes, there is a soft, light blue/purple drop shadow or glow around the circular avatar.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790275283,
+  "id": "202609250241214c2ee5eb8f504f29",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609250241214c2ee5eb8f504f29",
+  "usage": {
+    "completion_tokens": 44,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1725,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1769
+  }
+}

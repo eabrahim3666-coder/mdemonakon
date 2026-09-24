@@ -338,3 +338,22 @@ Work Log:
 Stage Summary:
 - The site is now hard-locked light: white background, black text, deep blue gradient accents (heading, loading bar, watermark, buttons, bubbles, fluid splats) — and browser auto-darkening is opted out via color-scheme: only light
 - Even with the OS in dark mode the page renders pure white (verified via media emulation)
+
+---
+Task ID: 3
+Agent: Super Z (main agent)
+Task: Remove all image-shape shadows and change image shapes (user request: "dont use any shadow of the shape of image, change the shape to something else")
+
+Work Log:
+- Audited entire codebase for image-related shadows: found drop-shadows on landing avatar + chat avatar (avatar-face.png), arch presentation card (halo layer + box shadow + image drop-shadow), logo button shadow-lg
+- landing-view.tsx: avatar changed from freeform transparent cutout + drop-shadow → clean CIRCLE badge (rounded-full, misty blue gradient #F3F7FF→#DCE8FA, object-cover object-top, sizes h-56/72/96); logo button shadow-lg removed
+- chat-view.tsx: thinking-stage avatar same circle treatment (h-36/40/44), drop-shadow removed
+- tool-cards.tsx: PresentationCard arch (rounded-t-full + offset deep-blue halo layer + 2 shadows) → flat SQUIRCLE (rounded-[2.5rem] all corners), halo layer deleted, both shadows removed, "Open to work" badge shadow-lg removed
+- Verified via DOM computed styles: all imgs filter:none, boxShadow:none; avatar parents borderRadius full-circle/40px; logo button boxShadow none
+- Verified via VLM screenshots: landing (circle avatar, no shadow), Me card (squircle, no halo), chat thinking stage (circle, no shadow)
+- Console: zero errors; HMR live; server 200
+
+Stage Summary:
+- Zero image-shape shadows remain anywhere in the app; shapes changed: landing+chat avatars = circle badges with soft misty-blue gradient, presentation portrait = squircle
+- UI-element shadows (chat input, welcome modal, shadcn defaults) intentionally kept — not image shapes
+- Screenshots: scripts/noshadow-landing.png, noshadow-me-card.png, noshadow-chat-stage.png, noshadow-final-landing.png

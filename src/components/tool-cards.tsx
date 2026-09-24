@@ -518,25 +518,15 @@ export function PresentationCard() {
       className="mx-auto w-full max-w-5xl py-6 font-sans"
     >
       <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
-        {/* Avatar column — editorial ARCH portrait: the bust floats on a
-            misty blue gradient inside a rounded-top arch, with a deep-blue
-            gradient arch ring offset behind for layered depth */}
+        {/* Avatar column — clean squircle portrait, flat (no shadow,
+            no offset halo) */}
         <div className="relative mx-auto aspect-[4/5] w-full max-w-[300px] sm:max-w-[340px]">
-          {/* Deep blue gradient arch — offset behind (the halo layer) */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, ease: APPLE_EASE, delay: 0.1 }}
-            aria-hidden
-            className="absolute inset-0 translate-x-3 translate-y-4 rounded-t-full rounded-b-[2rem] bg-gradient-to-br from-[#0A2A6B] via-[#1D4ED8] to-[#0171E3] opacity-90"
-          />
-
-          {/* The arch portrait — soft misty gradient with the cutout bust */}
+          {/* The squircle portrait — soft misty gradient with the bust */}
           <motion.div
             initial={{ scale: 0.92, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.9, ease: APPLE_EASE }}
-            className="relative h-full w-full overflow-hidden rounded-t-full rounded-b-[2rem] bg-gradient-to-b from-[#F3F7FF] via-[#E9F0FC] to-[#DCE8FA] shadow-[0_24px_48px_-18px_rgba(10,42,107,0.35)]"
+            className="relative h-full w-full overflow-hidden rounded-[2.5rem] bg-gradient-to-b from-[#F3F7FF] via-[#E9F0FC] to-[#DCE8FA]"
           >
             <Image
               src={presentation.avatar}
@@ -544,17 +534,17 @@ export function PresentationCard() {
               width={451}
               height={536}
               priority
-              className="h-full w-full object-cover object-top drop-shadow-[0_18px_28px_rgba(10,42,107,0.28)]"
+              className="h-full w-full object-cover object-top"
               unoptimized
             />
           </motion.div>
 
-          {/* Status chip — small badge anchored bottom-right of the arch */}
+          {/* Status chip — small badge anchored bottom-right of the portrait */}
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.5, ease: APPLE_EASE, delay: 0.55 }}
-            className="absolute -right-2 bottom-6 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 shadow-lg backdrop-blur-md"
+            className="absolute -right-2 bottom-6 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 backdrop-blur-md"
           >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0171E3] opacity-60" />
