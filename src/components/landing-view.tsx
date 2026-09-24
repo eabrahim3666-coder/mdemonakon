@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Laugh, Briefcase, Layers, PartyPopper, UserRoundSearch, ArrowRight, X, Rocket } from "lucide-react";
+import { Laugh, Briefcase, Layers, PartyPopper, UserRoundSearch, ArrowRight, X, Rocket } from "lucide-react";
 import { brand } from "@/lib/persona";
 
 interface LandingViewProps {
@@ -73,33 +73,6 @@ export function LandingView({ onAsk }: LandingViewProps) {
           {brand.watermark}
         </div>
       </div>
-
-      {/* Fastfolio floating CTA */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.9, duration: 0.5 }}
-        className="group fixed top-8 left-6 z-51 flex cursor-pointer items-center gap-2 rounded-full border bg-transparent px-4 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:shadow-xl"
-        tabIndex={0}
-        onClick={() =>
-          window.open("https://fastfol.io?utm_source=portfolio&utm_medium=floating_cta", "_blank", "noopener,noreferrer")
-        }
-      >
-        <Image
-          alt="Fastfolio"
-          loading="lazy"
-          width={24}
-          height={24}
-          decoding="async"
-          className="object-contain"
-          style={{ color: "transparent" }}
-          src="/fastfolio-logo.png"
-          unoptimized
-        />
-        <span className="hidden text-sm font-medium text-foreground sm:inline">Build your AI portfolio</span>
-        <span className="text-sm font-medium text-foreground sm:hidden">Build yours</span>
-        <ChevronRight className="group-hover:translate-x-0.5 hidden h-4 w-4 transition-transform sm:block" />
-      </motion.button>
 
       {/* Hero */}
       <motion.div

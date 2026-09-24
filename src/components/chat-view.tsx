@@ -1,12 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
-  ChevronRight,
   ChevronDown,
   ChevronUp,
   Laugh,
@@ -82,7 +80,7 @@ function QuickQuestions({
               key={key}
               onClick={() => !disabled && onQuickAction(quickQueries[key])}
               whileTap={disabled ? {} : { scale: 0.95 }}
-              className={`h-auto min-w-[96px] flex-shrink-0 rounded-xl border px-4 py-2 shadow-none backdrop-blur-sm transition-colors ${
+              className={`h-auto min-w-[96px] flex-shrink-0 rounded-xl border px-4 py-1.5 shadow-none backdrop-blur-sm transition-colors ${
                 disabled
                   ? "cursor-not-allowed border-gray-200 bg-gray-100 opacity-50"
                   : "border-border hover:bg-border/30 cursor-pointer bg-white/80 active:scale-95"
@@ -284,23 +282,13 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
-      {/* Fastfolio floating CTA */}
-      <button
-        className="group fixed top-6 left-6 z-51 hidden cursor-pointer items-center gap-2 rounded-full border bg-transparent px-4 py-2.5 backdrop-blur-2xl transition-all duration-300 hover:shadow-xl md:flex"
-        onClick={() => window.open("https://fastfol.io?utm_source=portfolio&utm_medium=floating_cta", "_blank", "noopener,noreferrer")}
-      >
-        <Image alt="Fastfolio" width={24} height={24} className="object-contain" src="/fastfolio-logo.png" unoptimized />
-        <span className="text-sm font-medium text-foreground">Build your AI portfolio</span>
-        <ChevronRight className="group-hover:translate-x-0.5 h-4 w-4 transition-transform" />
-      </button>
-
       {/* Header: back button row + the avatar stage.
           The stage (talking memoji + the user's question bubble) is ONLY
           visible while the response is being prepared — the moment data
           starts arriving it dissolves upward and collapses to zero
           height, handing the whole screen to the content. */}
       <header className="z-10 flex flex-col items-center px-4 pt-3">
-        <div className="flex w-full items-center justify-between md:pl-72">
+        <div className="flex w-full items-center justify-between">
           <button
             onClick={onBack}
             aria-label="Back to home"

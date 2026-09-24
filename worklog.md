@@ -109,3 +109,21 @@ Stage Summary:
 - Scroll is now jitter-free: smooth glide on card entrance, instant pin during token streaming, respects user scrolling up
 - Quick buttons slimmed 46→38px as requested ("slight not lot")
 - Videos: scripts/cinematic_v2.webm (full 5-button sequence), scripts/cinematic_final.webm (final Me flow); screenshots: scripts/e2e_thinking_beat.png, e2e_projects_thinking.png, e2e_fun_mid_entrance.png, e2e_final_me.png
+
+---
+Task ID: 6
+Agent: Super Z (main agent)
+Task: Remove "Build your AI portfolio" (Fastfolio) button/functionality entirely + make quick-question buttons a bit shorter (height only)
+
+Work Log:
+- Grepped codebase for fastfolio/fastfol.io/"Build your AI portfolio": 2 hits — floating CTA in chat-view.tsx (fixed top-6 left-6) and landing-view.tsx (fixed top-8 left-6)
+- chat-view.tsx: removed Fastfolio CTA button block, removed now-unused imports (Image from next/image, ChevronRight from lucide-react), removed md:pl-72 header compensation (it existed only to keep the back button clear of the CTA — with CTA gone the row balances naturally again)
+- landing-view.tsx: removed Fastfolio CTA motion.button block + ChevronRight import (Image import kept — still used by hero logo/memoji)
+- Deleted orphaned public/fastfolio-logo.png (grep confirmed zero remaining references in src/)
+- Quick questions pills: py-2 → py-1.5 (height-only tweak; px-4, min-w-[96px], gap, text size all untouched)
+- Verified: tsc + eslint clean for both edited files (remaining tsc errors are pre-existing in fluid-background/examples/skills, untouched); agent-browser E2E on localhost:3000 — "Build your AI portfolio"/"Build yours" count = 0 on landing AND chat, no fastfolio <img> on page, button heights now 34px (was ~37-38px), widths unchanged (96/114px), Projects click still streams full tool-card set, memoji still vanishes after content loads, console clean (only HMR/DevTools info)
+
+Stage Summary:
+- Fastfolio branding/CTA fully removed from both views + asset deleted — portfolio is now fully standalone
+- Quick question buttons slimmed one more notch (height only, per request)
+- Screenshots: scripts/verify_landing_no_cta.png, scripts/verify_chat_projects.png, scripts/verify_chat_footer.png
