@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -58,7 +59,7 @@ const APPLE_EASE = [0.19, 1, 0.22, 1] as const;
 /* STATIC responses — no AI, no network, no waiting.                  */
 /* The reply resolves instantly from src/lib/static-chat.ts; this      */
 /* timeline only stages the reveal so it still feels alive: a short   */
-/* thinking beat (dots pulse + memoji talks), the card entrance,      */
+/* thinking beat (dots pulse + avatar bobs), the card entrance,      */
 /* then the text types in fast (~480ms). Click-to-full-answer   */
 /* is roughly one second.                                             */
 /* ------------------------------------------------------------------ */
@@ -129,7 +130,6 @@ function QuickQuestions({
 export function ChatView({ initialQuery, onBack, conversation, setConversation }: ChatViewProps) {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const sentInitial = useRef(false);
   /* Synchronous streaming guard — state updates are batched in React 18,
@@ -183,7 +183,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
       };
 
       try {
-        /* 1) Thinking beat — the dots pulse and the memoji talks */
+        /* 1) Thinking beat — the dots pulse and the avatar bobs */
         await sleep(THINK_MS);
         if (!isCurrent()) return;
 
@@ -238,19 +238,6 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
     }
   }, [initialQuery, conversation.length, sendMessage]);
 
-  // Memoji talks while the AI is streaming and the avatar is on stage.
-  // Re-runs when the avatar returns for a new turn (video remounts).
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (isStreaming && !assistantStarted) {
-      video.currentTime = 0;
-      void video.play().catch(() => {});
-    } else {
-      video.pause();
-    }
-  }, [isStreaming, assistantStarted, userTurns]);
-
   // Every new turn re-engages bottom-following (fresh chat, fresh scroll)
   useEffect(() => {
     stickToBottom.current = true;
@@ -284,7 +271,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
       {/* Header: back button row + the avatar stage.
-          The stage (talking memoji + the user's question bubble) is ONLY
+          The stage (talking avatar + the user's question bubble) is ONLY
           visible while the response is being prepared — the moment data
           starts arriving it dissolves upward and collapses to zero
           height, handing the whole screen to the content. */}
@@ -310,19 +297,35 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
               transition={{ duration: 0.5, ease: APPLE_EASE }}
               className="flex w-full flex-col items-center overflow-hidden"
             >
-              <div className="relative h-28 w-24 overflow-hidden sm:h-32 sm:w-28 md:h-36 md:w-32" aria-hidden="true">
-                <video
-                  ref={videoRef}
-                  src="/final_memojis.webm"
-                  muted
-                  playsInline
-                  loop
-                  preload="auto"
-                  className="translate-y-5 scale-[2.2] object-cover"
+              {/* The avatar face — transparent cutout; while the reply is
+                  being prepared it plays a gentle talking bob (like the
+                  old memoji video used to) */}
+              <motion.div
+                aria-hidden="true"
+                animate={
+                  isStreaming && !assistantStarted
+                    ? { scale: [1, 1.045, 1], y: [0, -4, 0] }
+                    : { scale: 1, y: 0 }
+                }
+                transition={
+                  isStreaming && !assistantStarted
+                    ? { duration: 1.05, repeat: Infinity, ease: "easeInOut" }
+                    : { duration: 0.35, ease: APPLE_EASE }
+                }
+                className="h-32 w-28 sm:h-36 sm:w-32 md:h-40 md:w-36"
+              >
+                <Image
+                  src="/avatar-face.png"
+                  alt="Avatar"
+                  width={1000}
+                  height={790}
+                  className="h-full w-full object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.16)]"
+                  style={{ color: "transparent" }}
+                  unoptimized
                 />
-              </div>
+              </motion.div>
 
-              {/* The user's question sits right under the memoji while the
+              {/* The user's question sits right under the avatar while the
                   response is being prepared — it dissolves away with the stage */}
               {lastUserMsg && (
                 <motion.div

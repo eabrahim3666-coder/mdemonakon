@@ -111,22 +111,22 @@ export function LandingView({ onAsk }: LandingViewProps) {
         <h1 className="text-4xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">{brand.role}</h1>
       </motion.div>
 
-      {/* Memoji — scales up out of blur */}
+      {/* Avatar face — transparent cutout, scales up out of blur */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9, filter: "blur(6px)" }}
         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
         transition={{ delay: 0.55, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-        className="relative z-10 h-52 w-48 overflow-hidden sm:h-72 sm:w-72"
+        className="relative z-10"
       >
         <Image
-          alt="Hero memoji"
-          width={2000}
-          height={2000}
+          alt={`${brand.name} — avatar`}
+          width={1000}
+          height={790}
           decoding="async"
           priority
-          className="translate-y-14 scale-[2] object-cover"
+          className="h-52 w-auto object-contain drop-shadow-[0_24px_36px_rgba(0,0,0,0.20)] sm:h-72 md:h-80"
           style={{ color: "transparent" }}
-          src="/landing-memojis.png"
+          src="/avatar-face.png"
           unoptimized
         />
       </motion.div>

@@ -518,9 +518,10 @@ export function PresentationCard() {
       className="mx-auto w-full max-w-5xl py-6 font-sans"
     >
       <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
-        {/* Avatar column — slow cinematic scale-up */}
+        {/* Avatar column — transparent cutout floats on a soft
+            gradient backdrop; slow cinematic scale-up */}
         <div className="relative mx-auto aspect-square w-full max-w-xs sm:max-w-sm">
-          <div className="relative h-full w-full overflow-hidden rounded-2xl">
+          <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#F7F7F9] via-[#F1F1F4] to-[#E7E7EC]">
             <motion.div
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -532,7 +533,7 @@ export function PresentationCard() {
                 alt={presentation.fullName}
                 width={500}
                 height={500}
-                className="h-full w-full object-cover object-center"
+                className="h-full w-full object-contain p-5 drop-shadow-[0_14px_24px_rgba(0,0,0,0.14)]"
                 unoptimized
               />
             </motion.div>

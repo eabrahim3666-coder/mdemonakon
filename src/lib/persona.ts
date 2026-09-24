@@ -29,7 +29,7 @@ export const brand = {
 export const presentation = {
   fullName: "Md. Emon",
   subtitle: "Intership Application",
-  avatar: "/avatar-raphael.jpg",
+  avatar: "/avatar-face.png",
   text:
     "I'm Raphael Giraud, a 21-year-old developer specializing in AI at 42 Paris. Formerly a high-level mountain biker, I now intern at LightOn AI in Paris. I'm passionate about AI, tech, Entrepreneurship and SaaS tech.",
   facts: [
