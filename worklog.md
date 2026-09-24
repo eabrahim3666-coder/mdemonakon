@@ -145,3 +145,24 @@ Stage Summary:
 - Landing quick-action buttons now compact landscape cards (125w x 84h) instead of tall squares — height only, as requested
 - In-chat landing squares match the same proportions; all flows verified intact
 - Screenshot: scripts/verify_shorter_buttons.png
+
+---
+Task ID: 8
+Agent: Super Z (main agent)
+Task: Implement the project-card hover effect from user's attached video (video failed to upload AGAIN — upload/ empty; recovered the effect's intent from the original site's decompiled source + live-site measurement)
+
+Work Log:
+- User's video "Recording 2026-09-24 111332.mp4" NOT in upload/ (same delivery failure as the earlier screenshot) — investigated ground truth instead
+- Extracted all 7 whileHover sites from decompiled chat_page.js; found project-card code carries dead classes: "hover:scale-110" (on the gradient overlay div) and "transition-transform" (on modal detail images) — the template's intended effect = image zoom on hover, never activated on the live site
+- Live-site verification with agent-browser on aaabadcode.com: hovered carousel card (matches(':hover') true) → NO transform change; before/after screenshots VLM-compared identical; modal images likewise dead — confirms the hover effect was never live on the reference, it exists only as code intent
+- tool-cards.tsx implementation (Tailwind v4 named groups, CSS-only = GPU-smooth + layoutId-safe):
+  1. BlurImage base transition changed "transition duration-300" → "transition-[filter,transform] duration-300" so blur-up load fade and hover zoom coexist through tailwind-merge
+  2. Carousel card (motion.button): added "group/card"; gradient overlay dead hover:scale-110 replaced with opacity-80 → group-hover/card:opacity-100 (500ms); text block (z-40 p-8 wrapper) gets group-hover/card:-translate-y-1.5 (500ms Apple ease); BlurImage gets group-hover/card:scale-110 with duration-[600ms] ease-[cubic-bezier(0.19,1,0.22,1)]
+  3. Modal project images: wrapper group/img + cursor-pointer, Image gets group-hover/img:scale-105 (500ms Apple ease)
+- Verification: eslint + tsc clean; E2E on localhost:3000 — cards render with new classes, all 3 rules correctly compiled in stylesheet (.group-hover\/card\:scale-110:is(:where(.group\/card):hover *) etc.)
+- Headless-env gotcha solved: matchMedia('(hover: hover)') = false in agent-browser headless Chromium → Tailwind v4 gates all hover variants behind that media query, so effects can't visually fire in the test browser (real browsers: true). Proved wiring end-to-end by injecting the identical rules without the media wrapper: hovered card measured imgScale "1.1", textTranslate "0px -6px", hovered true — selectors/classes/markup all correct
+
+Stage Summary:
+- Project cards now zoom their image (1 → 1.10, 600ms Apple ease) with gradient deepening (0.8 → 1.0) and text lift (-6px) on hover; modal images zoom to 1.05 — the hover effect the original template code intended, finally alive
+- Effects are @media (hover: hover) gated by Tailwind (standard) — invisible only in headless test browsers, guaranteed in real desktop browsers; touch devices unaffected (tap = click = modal)
+- Screenshots: scripts/hover_before.png, hover_after.png (reference site — no effect), clone_hover_verified.png, clone_hover_out.png

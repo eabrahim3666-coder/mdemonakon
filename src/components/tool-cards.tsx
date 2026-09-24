@@ -123,7 +123,7 @@ function BlurImage({ src, alt, className }: { src: string; alt: string; classNam
       loading="lazy"
       decoding="async"
       onLoad={() => setBlurred(false)}
-      className={cn("transition duration-300", blurred ? "blur-sm" : "blur-0", className)}
+      className={cn("transition-[filter,transform] duration-300", blurred ? "blur-sm" : "blur-0", className)}
       unoptimized
     />
   );
@@ -185,13 +185,16 @@ function ProjectDetail({ project }: { project: Project }) {
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-4">
             {project.images.map((img, i) => (
-              <div key={img.src + i} className="relative aspect-video overflow-hidden rounded-2xl">
+              <div
+                key={img.src + i}
+                className="group/img relative aspect-video cursor-pointer overflow-hidden rounded-2xl"
+              >
                 <Image
                   src={img.src}
                   alt={img.alt}
                   fill
                   sizes="(max-width: 768px) 100vw, 900px"
-                  className="object-cover transition-transform"
+                  className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover/img:scale-105"
                   unoptimized
                 />
               </div>
@@ -286,10 +289,10 @@ function ExpandableCard({
       <motion.button
         layoutId={layout ? `${idPrefix}card-${card.title}` : undefined}
         onClick={() => setActive(true)}
-        className="relative z-10 flex h-80 w-56 cursor-pointer flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-100 dark:bg-neutral-900"
+        className="group/card relative z-10 flex h-80 w-56 cursor-pointer flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-100 dark:bg-neutral-900"
       >
-        <div className="absolute inset-x-0 top-0 z-30 h-full cursor-pointer bg-gradient-to-b from-black via-transparent to-transparent hover:scale-110" />
-        <div className="relative z-40 p-8">
+        <div className="absolute inset-x-0 top-0 z-30 h-full cursor-pointer bg-gradient-to-b from-black via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover/card:opacity-100" />
+        <div className="relative z-40 p-8 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover/card:-translate-y-1.5">
           <motion.p
             layoutId={layout ? `${idPrefix}cat-${card.category}` : undefined}
             className="text-left font-sans text-sm font-medium text-white md:text-base"
@@ -303,7 +306,11 @@ function ExpandableCard({
             {card.title}
           </motion.p>
         </div>
-        <BlurImage src={card.src} alt={card.title} className="absolute inset-0 z-10 object-cover" />
+        <BlurImage
+          src={card.src}
+          alt={card.title}
+          className="absolute inset-0 z-10 object-cover transition-transform duration-[600ms] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover/card:scale-110"
+        />
       </motion.button>
     </>
   );
