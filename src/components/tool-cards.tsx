@@ -133,21 +133,21 @@ function BlurImage({ src, alt, className }: { src: string; alt: string; classNam
 function ProjectDetail({ project }: { project: Project }) {
   return (
     <div className="space-y-10">
-      <div className="rounded-3xl bg-[#F5F5F7] p-8 dark:bg-[#1D1D1F]">
+      <div className="rounded-3xl bg-[#F5F5F7] p-8">
         <div className="space-y-6">
-          <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
+          <div className="flex items-center gap-2 text-sm text-neutral-500">
             <span>{project.date}</span>
           </div>
           <p className="text-secondary-foreground font-sans text-base leading-relaxed md:text-lg">
             {project.description}
           </p>
           <div className="pt-4">
-            <h3 className="mb-3 text-sm uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Technologies</h3>
+            <h3 className="mb-3 text-sm uppercase tracking-wide text-neutral-500">Technologies</h3>
             <div className="flex flex-wrap gap-2">
               {project.techStack.map((tech) => (
                 <span
                   key={tech}
-                  className="rounded-full bg-neutral-200 px-3 py-1 text-sm text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
+                  className="rounded-full bg-neutral-200 px-3 py-1 text-sm text-neutral-800"
                 >
                   {tech}
                 </span>
@@ -160,7 +160,7 @@ function ProjectDetail({ project }: { project: Project }) {
       {project.links && project.links.length > 0 && (
         <div className="mb-24">
           <div className="mb-4 flex items-center gap-2 px-6">
-            <h3 className="text-sm uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Links</h3>
+            <h3 className="text-sm uppercase tracking-wide text-neutral-500">Links</h3>
             <LinkIcon className="w-4 text-muted-foreground" />
           </div>
           <Separator className="my-4" />
@@ -171,7 +171,7 @@ function ProjectDetail({ project }: { project: Project }) {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-between rounded-xl bg-[#F5F5F7] p-4 transition-colors hover:bg-[#E5E5E7] dark:bg-neutral-800 dark:hover:bg-neutral-700"
+                className="group flex items-center justify-between rounded-xl bg-[#F5F5F7] p-4 transition-colors hover:bg-[#E5E5E7]"
               >
                 <span className="font-light capitalize">{link.name}</span>
                 <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -256,27 +256,27 @@ function ExpandableCard({
               exit={{ opacity: 0 }}
               ref={ref}
               layoutId={layout ? `${idPrefix}card-${card.title}` : undefined}
-              className="relative z-[60] mx-auto my-10 h-fit max-w-5xl rounded-3xl bg-white font-sans dark:bg-neutral-900"
+              className="relative z-[60] mx-auto my-10 h-fit max-w-5xl rounded-3xl bg-white font-sans"
             >
               <div className="sticky top-4 z-52 flex justify-end px-8 pt-8 md:px-14 md:pt-8">
                 <button
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/90 shadow-md dark:bg-white/90"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/90 shadow-md"
                   onClick={handleClose}
                   aria-label="Close project details"
                 >
-                  <X className="h-6 w-6 text-neutral-100 dark:text-neutral-900" />
+                  <X className="h-6 w-6 text-neutral-100" />
                 </button>
               </div>
               <div className="relative px-8 pt-2 pb-0 md:px-14">
                 <motion.p
                   layoutId={layout ? `${idPrefix}category-${card.title}` : undefined}
-                  className="text-base font-medium text-black dark:text-white"
+                  className="text-base font-medium text-black"
                 >
                   {card.category}
                 </motion.p>
                 <motion.p
                   layoutId={layout ? `${idPrefix}title-${card.title}` : undefined}
-                  className="mt-4 text-2xl font-semibold text-neutral-700 md:text-5xl dark:text-white"
+                  className="mt-4 text-2xl font-semibold text-neutral-700 md:text-5xl"
                 >
                   {card.title}
                 </motion.p>
@@ -289,7 +289,7 @@ function ExpandableCard({
       <motion.button
         layoutId={layout ? `${idPrefix}card-${card.title}` : undefined}
         onClick={() => setActive(true)}
-        className="relative z-10 flex h-80 w-56 cursor-pointer flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-100 dark:bg-neutral-900"
+        className="relative z-10 flex h-80 w-56 cursor-pointer flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-100"
       >
         <div className="absolute inset-x-0 top-0 z-30 h-full cursor-pointer bg-gradient-to-b from-black via-transparent to-transparent" />
         <div className="relative z-40 p-8">
@@ -408,7 +408,7 @@ export function ProjectsCard() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: APPLE_EASE }}
-        className="mx-auto max-w-7xl font-sans text-xl font-bold text-neutral-800 md:text-3xl dark:text-neutral-200"
+        className="mx-auto max-w-7xl font-sans text-xl font-bold text-neutral-800 md:text-3xl"
       >
         My Projects
       </motion.h2>

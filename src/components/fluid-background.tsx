@@ -604,18 +604,18 @@ export function FluidBackground() {
       deltaY: 0,
       down: false,
       moved: false,
-      color: [0, 0, 0],
+      color: [0.15, 0.30, 0.75], // deep navy — matches the brand palette
     };
     pointers.push(mainPointer);
 
     let colorTimer = 0;
+    /* Deep blue brand palette — all four stops live in the navy → royal →
+       azure family so the drifting splat colors stay on-brand. */
     const colorPalettes: [number, number, number][] = [
-      [0.4, 0.7, 1.0],
-      [1.0, 0.6, 0.8],
-      [0.5, 1.0, 0.6],
-      [1.0, 0.8, 0.4],
-      [0.8, 0.6, 1.0],
-      [0.4, 1.0, 1.0],
+      [0.30, 0.50, 0.95], // royal blue
+      [0.15, 0.30, 0.75], // deep navy
+      [0.45, 0.65, 1.00], // azure
+      [0.25, 0.40, 0.85], // indigo blue
     ];
     let colorIndex = 0;
 
@@ -688,7 +688,12 @@ export function FluidBackground() {
     }
 
     function generateColor() {
-      const c = HSVtoRGB(Math.random(), 1.0, 1.0);
+      /* Deep blue brand palette — hue 202°–238° (navy → royal → azure),
+         saturation 0.7–1.0, so the interactive splats stay on-brand
+         instead of random rainbow colors. */
+      const hue = 0.56 + Math.random() * 0.1;
+      const sat = 0.7 + Math.random() * 0.3;
+      const c = HSVtoRGB(hue, sat, 1.0);
       c.r *= 0.15;
       c.g *= 0.15;
       c.b *= 0.15;

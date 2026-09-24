@@ -72,7 +72,7 @@ export function LandingView({ onAsk }: LandingViewProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 1.6, ease: [0.19, 1, 0.22, 1] }}
-          className="hidden bg-gradient-to-b from-neutral-500/10 to-neutral-500/0 bg-clip-text text-[10rem] leading-none font-black text-transparent select-none sm:block lg:text-[16rem]"
+          className="hidden bg-gradient-to-b from-[#0A2A6B]/[0.09] to-[#0A2A6B]/0 bg-clip-text text-[10rem] leading-none font-black text-transparent select-none sm:block lg:text-[16rem]"
           style={{ marginBottom: "-2.5rem" }}
         >
           {brand.watermark}
@@ -108,7 +108,9 @@ export function LandingView({ onAsk }: LandingViewProps) {
           </button>
         </div>
         <h2 className="text-secondary-foreground mt-1 text-xl font-semibold md:text-2xl">{brand.greeting}</h2>
-        <h1 className="text-4xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">{brand.role}</h1>
+        <h1 className="bg-gradient-to-r from-[#0A2A6B] via-[#1D4ED8] to-[#0171E3] bg-clip-text text-4xl font-bold text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
+          {brand.role}
+        </h1>
       </motion.div>
 
       {/* Avatar face — transparent cutout, scales up out of blur */}
@@ -152,7 +154,7 @@ export function LandingView({ onAsk }: LandingViewProps) {
               type="submit"
               disabled={!question.trim()}
               aria-label="Submit question"
-              className="flex items-center justify-center rounded-full bg-[#0171E3] p-2.5 text-white transition-colors hover:bg-blue-600 disabled:opacity-70"
+              className="flex items-center justify-center rounded-full bg-gradient-to-br from-[#0171E3] to-[#0A2A6B] p-2.5 text-white transition-all hover:brightness-110 disabled:opacity-70"
             >
               <ArrowRight className="h-5 w-5" />
             </button>
@@ -234,7 +236,7 @@ export function LandingView({ onAsk }: LandingViewProps) {
               </div>
               <button
                 onClick={dismissWelcome}
-                className="mt-6 w-full cursor-pointer rounded-full bg-[#0171E3] py-3 text-sm font-medium text-white transition-colors hover:bg-blue-600"
+                className="mt-6 w-full cursor-pointer rounded-full bg-gradient-to-r from-[#0171E3] to-[#0A2A6B] py-3 text-sm font-medium text-white transition-all hover:brightness-110"
               >
                 Let&apos;s chat!
               </button>

@@ -308,3 +308,33 @@ Stage Summary:
 - The user's own face is now the site avatar everywhere: landing hero (floating transparent cutout), chat thinking stage (bobbing), Me card (gradient frame)
 - One-command swap for future photos: python3 scripts/remove_bg.py <photo> public/avatar-face.png
 - Source preserved: upload/emon_avatar_source
+
+---
+Task ID: 14
+Agent: Super Z (main agent)
+Task: Flip the site to a hard-locked LIGHT theme (white bg, black text) with deep blue gradient accents — user reported seeing black bg / white text
+
+Work Log:
+- Root cause of user's dark view: nothing in the app ever applied .dark (no toggle, no dark OS activation of variants) — the site was light-only, so the black bg/white text came from the USER'S browser auto-darkening (Chrome/Samsung forced dark on light-only pages). Fix = hard light lock + explicit color-scheme
+- globals.css: removed @custom-variant dark + the entire .dark theme block; :root now declares color-scheme: only light; html gets @apply bg-white; body keeps bg-background (white) text-foreground (near-black)
+- scripts/strip_dark_variants.py: stripped ALL 45 dark: tokens across 18 files (chat-view, tool-cards + shadcn ui/*) so no prefers-color-scheme variant can ever flip styles; chart.tsx THEMES string left (inert)
+- layout.tsx: <head> now emits <meta name="color-scheme" content="light only"> + supported-color-schemes — the standard opt-out for browser auto-darkening
+- Deep blue gradient system (navy #0A2A6B → royal #1D4ED8 → azure #0171E3, anchored on the site's action blue):
+  * Landing hero role h1: bg-clip-text gradient fill (static node — safe; loading-screen staggered letters use solid navy instead because per-letter filter/transform isolation breaks bg-clip-text)
+  * Loading screen: name in deep navy, progress bar fill + % counter in blue gradient/navy
+  * Watermark: neutral tint → #0A2A6B/[0.09] blue tint
+  * Both submit buttons (landing + chat), welcome CTA: bg-gradient-to-br from-[#0171E3] to-[#0A2A6B] with hover:brightness-110
+  * Chat question bubble: blue gradient
+  * Fluid splats: generateColor() hue biased 0.56–0.66 (202°–238°), sat 0.7–1.0; colorPalettes cycle replaced with 4 brand-blue stops; initial pointer color deep navy
+- Fixed pre-existing lint error in loading-screen.tsx (ref assignment during render → useEffect)
+- E2E verified with agent-browser:
+  * set media dark (OS dark emulation): bodyBg lab(100 0 0) pure white, corners 255,255,255, no .dark class, colorScheme "light only" — SITE STAYS WHITE under OS dark
+  * VLM confirms: white bg, black text, blue gradient heading, blue gradient button, avatar floats correctly; project cards' dark backgrounds are the actual screenshots (content, not theme)
+  * Loading screen: blue pixels grow 8.5K → 27.7K as the bar fills, white bg
+  * Chat: Projects click → gradient bubble + reply renders; console/page errors clean
+  * Lens (?lensdebug=1): clone mounts over content, ring renders via difference blend (dark circle on white = visible)
+  * tsc clean (pre-existing fluid-background noise only); eslint clean on all touched files
+
+Stage Summary:
+- The site is now hard-locked light: white background, black text, deep blue gradient accents (heading, loading bar, watermark, buttons, bubbles, fluid splats) — and browser auto-darkening is opted out via color-scheme: only light
+- Even with the OS in dark mode the page renders pure white (verified via media emulation)

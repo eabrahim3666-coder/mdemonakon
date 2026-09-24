@@ -335,7 +335,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                   transition={{ duration: 0.4, ease: APPLE_EASE }}
                   className="mx-auto mt-1 flex w-full max-w-3xl justify-end px-1"
                 >
-                  <div className="max-w-[85%] rounded-3xl bg-[#0171E3] px-5 py-3 text-white shadow-md sm:max-w-[70%]">
+                  <div className="max-w-[85%] rounded-3xl bg-gradient-to-br from-[#0171E3] to-[#0A2A6B] px-5 py-3 text-white shadow-md sm:max-w-[70%]">
                     <p className="text-sm leading-relaxed break-words whitespace-pre-wrap sm:text-base">
                       {lastUserMsg.content}
                     </p>
@@ -408,7 +408,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className="flex w-full items-start px-2 pt-8 md:px-4"
               >
-                <div className="flex items-center gap-1.5 rounded-2xl bg-[#ECECF0] px-5 py-3.5 shadow-sm dark:bg-neutral-800">
+                <div className="flex items-center gap-1.5 rounded-2xl bg-[#ECECF0] px-5 py-3.5 shadow-sm">
                   {[0, 1, 2].map((dot) => (
                     <span
                       key={dot}
@@ -446,10 +446,10 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                     transition={{ duration: 0.45, ease: APPLE_EASE }}
                     className="w-full"
                   >
-                    <div className="rounded-2xl bg-[#ECECF0] px-5 py-3 shadow-sm dark:bg-neutral-800">
+                    <div className="rounded-2xl bg-[#ECECF0] px-5 py-3 shadow-sm">
                       <p
-                        className={`text-sm leading-relaxed break-words whitespace-pre-wrap text-neutral-800 sm:text-base dark:text-neutral-100 ${
-                          currentAssistant.error ? "text-red-500 dark:text-red-400" : ""
+                        className={`text-sm leading-relaxed break-words whitespace-pre-wrap text-neutral-800 sm:text-base ${
+                          currentAssistant.error ? "text-red-500" : ""
                         }`}
                       >
                         {currentAssistant.content}
@@ -487,7 +487,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                 type="submit"
                 disabled={!input.trim() || isStreaming}
                 aria-label="Submit question"
-                className="flex items-center justify-center rounded-full bg-[#0171E3] p-2.5 text-white transition-colors hover:bg-blue-600 disabled:opacity-70"
+                className="flex items-center justify-center rounded-full bg-gradient-to-br from-[#0171E3] to-[#0A2A6B] p-2.5 text-white transition-all hover:brightness-110 disabled:opacity-70"
               >
                 <ArrowRight className="h-5 w-5" />
               </button>

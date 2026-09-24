@@ -40,7 +40,9 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   const [done, setDone] = useState(false);
   const doneRef = useRef(false);
   const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     const start = performance.now();
@@ -101,8 +103,9 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
           Loading
         </motion.p>
 
-        {/* Name — each letter staggers into focus */}
-        <h1 className="mt-5 text-5xl font-bold tracking-tight text-neutral-900 sm:text-6xl md:text-7xl">
+        {/* Name — each letter staggers into focus (solid deep navy: per-letter
+            filter/transform isolation would break a bg-clip-text gradient) */}
+        <h1 className="mt-5 text-5xl font-bold tracking-tight text-[#0A2A6B] sm:text-6xl md:text-7xl">
           {NAME.split("").map((ch, i) => (
             <motion.span
               key={`${ch}-${i}`}
@@ -135,11 +138,11 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
         >
           <div className="h-[3px] flex-1 overflow-hidden rounded-full bg-neutral-200">
             <div
-              className="h-full rounded-full bg-neutral-900"
+              className={`h-full rounded-full bg-gradient-to-r from-[#0171E3] to-[#0A2A6B]`}
               style={{ width: `${progress * 100}%` }}
             />
           </div>
-          <span className="w-10 text-right text-xs font-medium text-neutral-400 tabular-nums">
+          <span className="w-10 text-right text-xs font-medium text-[#0A2A6B] tabular-nums">
             {Math.round(progress * 100)}%
           </span>
         </motion.div>
