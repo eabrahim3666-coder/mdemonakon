@@ -571,7 +571,7 @@ export function PresentationCard() {
               hidden: { opacity: 0, y: 24 },
               visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: APPLE_EASE, delay: 0.45 } },
             }}
-            className="text-foreground mt-6 leading-relaxed whitespace-pre-line"
+            className="text-foreground mt-6 text-justify leading-relaxed whitespace-pre-line"
           >
             {presentation.intro}
           </motion.p>
@@ -609,10 +609,10 @@ export function PresentationCard() {
         transition={{ delay: 0.55, duration: 0.7, ease: APPLE_EASE }}
         className="mt-12 border-t border-border pt-8"
       >
-        <p className="text-foreground max-w-2xl leading-relaxed">
+        <p className="text-foreground max-w-2xl text-justify leading-relaxed">
           {presentation.moreText}
         </p>
-        <p className="text-foreground mt-5 max-w-2xl leading-relaxed">
+        <p className="text-foreground mt-5 max-w-2xl text-justify leading-relaxed">
           {presentation.punchline}
         </p>
       </motion.div>

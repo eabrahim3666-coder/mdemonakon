@@ -32,10 +32,10 @@ export const presentation = {
   location: "Barishal, Bangladesh",
   /* Short intro — shown BESIDE the photo in the presentation card */
   intro:
-    "Hey, I'm Emon \uD83D\uDC4B\nI'm a backend-focused developer and SaaS builder passionate about building the systems behind modern software. I specialize in backend engineering, APIs, databases, integrations, AI, and automation, while working comfortably across the full stack when a product demands it.",
+    "Hey, I'm Emon \uD83D\uDC4B\nI'm a backend focused developer and SaaS builder passionate about building the systems behind modern software. I specialize in backend engineering, APIs, databases, integrations, AI, and automation, while working comfortably across the full stack when a product demands it.",
   /* The rest of the story — full-width section UNDER the photo/text grid */
   moreText:
-    "I enjoy taking ideas from architecture to implementation — designing the logic, connecting the systems, solving the difficult parts, and turning concepts into reliable, usable software. I'm driven by curiosity, problem-solving, and the process of building things that are useful, scalable, and built to last.",
+    "I enjoy taking ideas from architecture to implementation, designing the logic, connecting the systems, solving the difficult parts, and turning concepts into reliable, usable software. I'm driven by curiosity, problem solving, and the process of building things that are useful, scalable, and built to last.",
   punchline: "I don't just write code, I build systems.",
   chips: ["AI", "Developer", "SaaS Builder", "Node.js", "Next.js"],
   facts: [

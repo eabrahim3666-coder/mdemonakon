@@ -395,3 +395,17 @@ Stage Summary:
 - Me card is now minimal monochrome spec-sheet style: photo+intro grid → divider → story+punchline → spec strip facts
 - Chat reply bubble for Me deleted entirely
 - Screenshots: scripts/minimal-me-card.png, minimal-me-mobile.png, minimal-me-mobile2.png
+
+---
+Task ID: 6
+Agent: Super Z (main agent)
+Task: Justify Me-section paragraphs and remove hyphens
+
+Work Log:
+- persona.ts: "backend-focused" → "backend focused"; em dash " — " → ", " in moreText; "problem-solving" → "problem solving"
+- tool-cards.tsx: added text-justify to intro paragraph, moreText, and punchline
+- Verified via computed styles: textAlign "justify" on all 3 paragraphs; regex /[-—–]/ finds zero hyphens/dashes in any Me-card paragraph; console clean
+
+Stage Summary:
+- Me section paragraphs now justified; all hyphens/dashes removed from text
+- Screenshot: scripts/justify-me-card.png
