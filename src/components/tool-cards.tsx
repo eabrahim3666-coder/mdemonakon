@@ -289,10 +289,10 @@ function ExpandableCard({
       <motion.button
         layoutId={layout ? `${idPrefix}card-${card.title}` : undefined}
         onClick={() => setActive(true)}
-        className="group/card relative z-10 flex h-80 w-56 cursor-pointer flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-100 dark:bg-neutral-900"
+        className="relative z-10 flex h-80 w-56 cursor-pointer flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-100 dark:bg-neutral-900"
       >
-        <div className="absolute inset-x-0 top-0 z-30 h-full cursor-pointer bg-gradient-to-b from-black via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover/card:opacity-100" />
-        <div className="relative z-40 p-8 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover/card:-translate-y-1.5">
+        <div className="absolute inset-x-0 top-0 z-30 h-full cursor-pointer bg-gradient-to-b from-black via-transparent to-transparent" />
+        <div className="relative z-40 p-8">
           <motion.p
             layoutId={layout ? `${idPrefix}cat-${card.category}` : undefined}
             className="text-left font-sans text-sm font-medium text-white md:text-base"
@@ -306,11 +306,7 @@ function ExpandableCard({
             {card.title}
           </motion.p>
         </div>
-        <BlurImage
-          src={card.src}
-          alt={card.title}
-          className="absolute inset-0 z-10 object-cover transition-transform duration-[600ms] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover/card:scale-110"
-        />
+        <BlurImage src={card.src} alt={card.title} className="absolute inset-0 z-10 object-cover" />
       </motion.button>
     </>
   );
@@ -407,7 +403,7 @@ export function ProjectsCard() {
     <ExpandableCard key={card.title + idx} card={card} index={idx} layout idPrefix={idPrefix} />
   ));
   return (
-    <div className="h-full w-full pt-8">
+    <div className="h-full w-full pt-8" data-lens="true">
       <motion.h2
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

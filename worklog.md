@@ -166,3 +166,29 @@ Stage Summary:
 - Project cards now zoom their image (1 → 1.10, 600ms Apple ease) with gradient deepening (0.8 → 1.0) and text lift (-6px) on hover; modal images zoom to 1.05 — the hover effect the original template code intended, finally alive
 - Effects are @media (hover: hover) gated by Tailwind (standard) — invisible only in headless test browsers, guaranteed in real desktop browsers; touch devices unaffected (tap = click = modal)
 - Screenshots: scripts/hover_before.png, hover_after.png (reference site — no effect), clone_hover_verified.png, clone_hover_out.png
+
+---
+Task ID: 9
+Agent: Super Z (main agent)
+Task: Implement the Google Drive video's hover effect "absolutely accurately" — a magnifying-lens custom cursor over the project showcase
+
+Work Log:
+- Downloaded the Drive video successfully after user set permissions (upload/hover_video.mp4, 11.8s, 1920x902@30fps)
+- Forensic analysis pipeline: extracted 25 key frames (frame_*.png, seq_*.png), 5 VLM passes + pixel-level scans:
+  * Effect identified: custom cursor system — small white ring (~26px, 1-1.5px border) replaces the system arrow site-wide; over the project showcase zone it grows into an ~80px lens (2-3px border) showing ~1.7x magnified content beneath; zero position lag; shrinks back on zone exit; no shadow/fill/center-dot
+  * Pixel-diff frame comparison located the true lens (VLM coordinates were unreliable): diff cluster center (1064,298), diameter ~80px; magnification confirmed by zoomed-crop VLM analysis
+- NEW src/components/lens-cursor.tsx — the complete cursor system:
+  * Ring + lens as two portal-to-body layers (z 9998/9999) sharing one `size` motion value so they can never drift; ring uses mix-blend-mode: difference (white stays visible on our light theme — faithful adaptation of the video's dark-site white ring)
+  * Magnification via DOM-clone technique: on zone entry, cloneNode(deep) of the [data-lens] element (classes+inline styles carried = pixel-identical, listeners not copied), hosted in a scale(1.7) layer; shift transform maps the point under the cursor to the circle center — computed with useTransform([mx, size]) so it updates every frame without React re-renders
+  * Size morph 26↔80px via imperative animate() spring (stiffness 480, damping 34); border 1.25↔2px; clone cross-fades 150ms
+  * Carousel scrollLeft synced via scroll listener; zone rect refreshed every mousemove
+  * isWithinVisibleZone() guard: the project modal is a fixed-position DOM-descendant of the zone — walking up from the hovered element, any `fixed` ancestor before the zone marks an overlay → lens deactivates over the modal (both on mouseover AND on a post-mousedown elementFromPoint re-check for stationary-cursor clicks)
+  * Gated by matchMedia('(pointer: fine)') + ?lensdebug=1 bypass for headless E2E; useSyncExternalStore pattern (lint-clean); hides native cursor via .no-native-cursor class in globals.css
+- tool-cards.tsx: ProjectsCard container marked data-lens="true" (title + carousel + arrows = the showcase zone); REMOVED previous round's card zoom/gradient/text-lift hover (video shows cards completely static — the lens is the effect); modal image zoom kept (separate context, no conflict)
+- page.tsx: <LensCursor /> mounted once beside FluidBackground; globals.css: .no-native-cursor cursor:none rule
+- E2E verified via ?lensdebug=1 with real CDP mouse events: ring 26px/1px border off-zone → 80px/2px border + clone mounted over carousel (ring center EXACTLY at mouse, zero lag); magnification geometry proven (host 736x508 scaled to 1251x864 = 1.7x, shift math exact) and VISUALLY confirmed by VLM over card text ("text inside the circle is bigger, ~1.7x, sharp and legible"); card click with lens active → modal opens → lens retracts to 26px + clone torn down; Escape → re-enter zone → lens reactivates; no console errors; without lensdebug on non-fine-pointer: nothing mounts (production gating correct); eslint + tsc clean
+
+Stage Summary:
+- The video's magnifying-lens cursor is fully replicated: white ring cursor everywhere, 80px 1.7x magnifying lens over the project carousel, spring morph, zero lag, modal-aware retraction
+- Screenshots: scripts/lens_active.png, lens_on/off.png + crops, lens_text_test.png (VLM-confirmed magnification), lens_reactivated.png
+- Video + frames preserved in upload/hover_video.mp4, upload/frame_*.png, upload/seq_*.png

@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FluidBackground } from "@/components/fluid-background";
 import { LandingView } from "@/components/landing-view";
 import { ChatView } from "@/components/chat-view";
+import { LensCursor } from "@/components/lens-cursor";
 import type { ToolName } from "@/components/tool-cards";
 
 interface ChatMsg {
@@ -33,6 +34,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       <FluidBackground />
+      <LensCursor />
       <AnimatePresence mode="wait">
         {view === "landing" ? (
           <motion.div
