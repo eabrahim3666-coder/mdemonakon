@@ -48,3 +48,23 @@ Stage Summary:
 - Fully working clone at localhost:3000 with identical layout/UX: WebGL fluid bg, AI memoji chat with streaming + generative tool cards, talking avatar video
 - All brand strings centralized in src/lib/persona.ts for easy rebranding
 - Screenshots: scripts/clone_landing.png, clone_chat.png, clone_detail.png, clone_final*.png
+
+---
+Task ID: 3
+Agent: Super Z (main agent)
+Task: Fix button behavior — cards must NOT disappear when clicked (match original site's expandable card carousel)
+
+Work Log:
+- User reported: clicking buttons made them disappear, unlike the original site's video
+- Re-analyzed original site's decompiled chat_page.js: projects tool card is the Aceternity "Expandable Card Carousel" pattern — NOT a grid+detail replacement
+- Original behavior confirmed from source: clicking a project card opens a full-screen overlay (fixed inset-0 z-52, bg-black/80 backdrop-blur-lg); the clicked card MORPHS into the modal via framer-motion layoutId (card-${title}, title-${title}); ALL carousel cards stay visible underneath; close via X button / Escape / click-outside; body scroll lock while open; carousel scrolls back to the closed card's index (onCardClose)
+- Downloaded 9 original preview images (syntopreview.png, ratepreview.png, defaipreview.png, fitgearpreview.png, dataipreview.png, transcendancepreview.png, minishellpreview.png, youbotpreview.png, oldportfoliopreview.png) to public/
+- persona.ts: added src field to all 9 projects; fixed Old Portfolio category to "Web Development"
+- tool-cards.tsx: rewrote ProjectsCard as faithful port — ExpandableCarousel (horizontal scroll, py-10, gap-4, arrow buttons h-10 w-10 bg-gray-100 scrolling ±240px, right edge fade w-[5%], last:pr-[5%] md:last:pr-[33%]), ExpandableCard (h-80 w-56 image cards with gradient + white category/title text, blur-up images), modal overlay (z-52/z-[60], sticky X close button, layoutId morphs, max-w-5xl my-10 rounded-3xl bg-white), ProjectDetail restyled to original (date, description, neutral tech pills, Links rows with ChevronRight + Separator, static image grid); inline SVG replicas of original arrow-narrow-left/right icons; layoutIds scoped with useId() to avoid cross-instance conflicts
+- landing-view.tsx: quick-button queries updated to exact original texts ("Who are you? I want to know more about you." etc.)
+- page.tsx: fixed ChatMsg type mismatch (tools: ToolName[]), removed cast
+- E2E verified with agent-browser: 9 cards render; clicking card opens modal while ALL cards remain in DOM; Escape / X / backdrop-click all close; scroll-back-on-close works (scrollLeft 240); arrows scroll ±240; modal internal scroll (scrollHeight 3206) works; mobile 390px works; body overflow lock/unlock verified; console clean; eslint clean; tsc clean for changed files
+
+Stage Summary:
+- Projects tool card now behaves exactly like the original: buttons never disappear on click — the clicked card morphs into a full-screen detail modal floating above the still-visible carousel
+- Screenshots: scripts/clone_modal_open.png, clone_carousel_modal.png, clone_modal_scrolled.png, clone_mobile_modal.png, clone_final_verified.png

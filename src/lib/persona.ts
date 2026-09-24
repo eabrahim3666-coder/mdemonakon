@@ -50,6 +50,7 @@ export interface ProjectLink {
 export interface Project {
   title: string;
   category: string;
+  src: string; // carousel preview image
   description: string;
   techStack: string[];
   date: string;
@@ -61,6 +62,7 @@ export const projects: Project[] = [
   {
     title: "Synto",
     category: "Startup Project",
+    src: "/syntopreview.png",
     description:
       "Synto is an AI-powered interface that transforms complex blockchain interactions into simple, natural language commands. Whether you want to send tokens, stake assets, swap coins, or even create NFTs or liquidity pools, just tell Synto what to do — no manual wallet interactions, no technical jargon. One of my biggest projects yet",
     techStack: [
@@ -100,6 +102,7 @@ export const projects: Project[] = [
   {
     title: "Rrate",
     category: "Fun Tool",
+    src: "/ratepreview.png",
     description:
       "Rrate is a fun website to allow user to compare his salary with the richest people in the world. Try it now it's online!",
     techStack: ["Html", "Css", "Javascript"],
@@ -117,6 +120,7 @@ export const projects: Project[] = [
   {
     title: "Defai",
     category: "Hackathon Winner",
+    src: "/defaipreview.png",
     description:
       "We Win ETHOXford hackathon by building DEFAI. DEFAI stands for Decentralized Finance Artificial Intelligence. It's an AI-powered chat interface that simplifies on-chain operations on the Avalanche blockchain by allowing users to interact using natural language. This makes complex DeFi operations accessible even for those with limited technical expertise.",
     techStack: ["Next.js", "TailwindCSS", "shadcn-ui", "Vercel AI SDK", "TypeScript"],
@@ -143,6 +147,7 @@ export const projects: Project[] = [
   {
     title: "Fitgear",
     category: "Hackathon Winner",
+    src: "/fitgearpreview.png",
     description:
       "Won the Gotta Go Hack IA by building Fitgear, a virtual voice seller accessible by QR code to improve the ratio between customers and sellers. Created an AI pipeline with API calls and a RAG system for natural language interactions.",
     techStack: ["Next.js", "TailwindCSS", "OpenAI API", "Langchain"],
@@ -161,6 +166,7 @@ export const projects: Project[] = [
   {
     title: "Datai",
     category: "Business Intelligence",
+    src: "/dataipreview.png",
     description:
       "DATAI is an AI-powered agent that lets non-technical users query a database using natural language without writing SQL. Built using Next.js, TailwindCSS, shadcn-ui, and Anthropic's Claude API, this project focuses on simplicity, speed, and user-friendly design.",
     techStack: ["Next.js", "TailwindCSS", "shadcn-ui", "Claude API", "TypeScript"],
@@ -179,6 +185,7 @@ export const projects: Project[] = [
   {
     title: "3d Pong Game",
     category: "42 Project",
+    src: "/transcendancepreview.png",
     description:
       "Transcendance is the final project of my 42 cursus. It's a 3D pong game with multiplayer capabilities, user authentication, and real-time gameplay. We had to do everything from scratch, so it was pretty challenging and we learned a lot.",
     techStack: [
@@ -206,6 +213,7 @@ export const projects: Project[] = [
   {
     title: "Minishell",
     category: "42 Project",
+    src: "/minishellpreview.png",
     description:
       "Minishell is a project that aims to create a simple shell. It's a great introduction to process creation and management in C, offering fundamental Unix command-line functionality. This was a very challenging project, but I learned a lot from it.",
     techStack: ["C", "Unix", "Bash"],
@@ -216,6 +224,7 @@ export const projects: Project[] = [
   {
     title: "YouBot",
     category: "Automation",
+    src: "/youbotpreview.png",
     description:
       "YouBot is a Python Bot that Scrapes Videos from Pexels, adds a random song from a Songs Folder, then auto-uploads the videos to your YouTube Channel for continuous content generation.",
     techStack: ["Python", "YouTube API", "Pexels API"],
@@ -231,7 +240,8 @@ export const projects: Project[] = [
   },
   {
     title: "Old Portfolio",
-    category: "Side Project",
+    category: "Web Development",
+    src: "/oldportfoliopreview.png",
     description:
       "My previous traditional portfolio built with vanilla HTML, CSS and JS with GSAP animations for a smooth and interactive user experience.",
     techStack: ["HTML", "CSS", "JavaScript", "GSAP"],

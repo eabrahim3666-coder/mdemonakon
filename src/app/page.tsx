@@ -5,11 +5,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FluidBackground } from "@/components/fluid-background";
 import { LandingView } from "@/components/landing-view";
 import { ChatView } from "@/components/chat-view";
+import type { ToolName } from "@/components/tool-cards";
 
 interface ChatMsg {
   role: "user" | "assistant";
   content: string;
-  tools?: string[];
+  tools?: ToolName[];
   error?: boolean;
 }
 
@@ -57,7 +58,7 @@ export default function Home() {
               initialQuery={initialQuery}
               onBack={handleBack}
               conversation={conversation}
-              setConversation={setConversation as React.Dispatch<React.SetStateAction<ChatMsg[]>>}
+              setConversation={setConversation}
             />
           </motion.div>
         )}

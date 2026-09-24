@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
+import type { ReactNode, RefObject, SVGProps } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -16,136 +17,391 @@ import {
   Building2,
   Bike,
   Sparkles,
-  ArrowUpRight,
-  CalendarDays,
   Youtube,
   X,
+  Link as LinkIcon,
 } from "lucide-react";
-import { brand, presentation, projects, skillCategories, funFacts } from "@/lib/persona";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { brand, presentation, projects, skillCategories, funFacts, type Project } from "@/lib/persona";
 
 /* ------------------------------------------------------------------ */
-/* Projects — grid of clickable cards + detail view                    */
+/* Projects — expandable card carousel (like the original site):       */
+/* the cards NEVER disappear on click — instead the clicked card       */
+/* morphs (framer-motion layoutId) into a full-screen modal overlay    */
+/* that floats above the still-visible carousel.                      */
 /* ------------------------------------------------------------------ */
 
-function ProjectDetail({ project, onBack }: { project: (typeof projects)[number]; onBack: () => void }) {
+interface ExpandableCardData {
+  category: string;
+  title: string;
+  src: string;
+  content: ReactNode;
+}
+
+interface CarouselCtx {
+  onCardClose: (index: number) => void;
+  currentIndex: number;
+}
+
+const CarouselContext = createContext<CarouselCtx>({
+  onCardClose: () => {},
+  currentIndex: 0,
+});
+
+function useClickOutside(ref: RefObject<HTMLDivElement | null>, handler: () => void) {
+  useEffect(() => {
+    const listener = (event: MouseEvent | TouchEvent) => {
+      if (!ref.current || ref.current.contains(event.target as Node)) return;
+      handler();
+    };
+    document.addEventListener("mousedown", listener);
+    document.addEventListener("touchstart", listener);
+    return () => {
+      document.removeEventListener("mousedown", listener);
+      document.removeEventListener("touchstart", listener);
+    };
+  }, [ref, handler]);
+}
+
+/* Exact SVG replicas of the original site's arrow-narrow-left/right icons */
+function IconArrowNarrowLeft(props: SVGProps<SVGSVGElement>) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
-      className="space-y-6"
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
     >
-      <button
-        onClick={onBack}
-        className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1 text-sm transition-colors"
-      >
-        ← Back to all projects
-      </button>
+      <path d="M5 12l14 0" />
+      <path d="M5 12l4 4" />
+      <path d="M5 12l4 -4" />
+    </svg>
+  );
+}
 
-      <div className="rounded-3xl bg-[#F5F5F7] p-6 sm:p-8 dark:bg-[#1D1D1F]">
+function IconArrowNarrowRight(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M5 12l14 0" />
+      <path d="M15 16l4 -4" />
+      <path d="M15 8l4 4" />
+    </svg>
+  );
+}
+
+/* Preview image with blur-up loading effect (as the original) */
+function BlurImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [blurred, setBlurred] = useState(true);
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes="224px"
+      loading="lazy"
+      decoding="async"
+      onLoad={() => setBlurred(false)}
+      className={cn("transition duration-300", blurred ? "blur-sm" : "blur-0", className)}
+      unoptimized
+    />
+  );
+}
+
+/* The detail content shown inside the expanded modal */
+function ProjectDetail({ project }: { project: Project }) {
+  return (
+    <div className="space-y-10">
+      <div className="rounded-3xl bg-[#F5F5F7] p-8 dark:bg-[#1D1D1F]">
         <div className="space-y-6">
-          <div className="text-muted-foreground flex items-center gap-2 text-sm">
-            <CalendarDays className="h-4 w-4" />
+          <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
             <span>{project.date}</span>
           </div>
-          <h3 className="text-2xl font-semibold sm:text-3xl">{project.title}</h3>
-          <p className="text-secondary-foreground text-base leading-relaxed md:text-lg">
+          <p className="text-secondary-foreground font-sans text-base leading-relaxed md:text-lg">
             {project.description}
           </p>
-          <div className="flex flex-wrap gap-2">
-            {project.techStack.map((tech) => (
-              <span
-                key={tech}
-                className="rounded-full border bg-white px-3 py-1 text-xs font-medium text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-              >
-                {tech}
-              </span>
-            ))}
+          <div className="pt-4">
+            <h3 className="mb-3 text-sm uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Technologies</h3>
+            <div className="flex flex-wrap gap-2">
+              {project.techStack.map((tech) => (
+                <span
+                  key={tech}
+                  className="rounded-full bg-neutral-200 px-3 py-1 text-sm text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
+        </div>
+      </div>
+
+      {project.links && project.links.length > 0 && (
+        <div className="mb-24">
+          <div className="mb-4 flex items-center gap-2 px-6">
+            <h3 className="text-sm uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Links</h3>
+            <LinkIcon className="w-4 text-muted-foreground" />
+          </div>
+          <Separator className="my-4" />
+          <div className="space-y-3">
             {project.links.map((link) => (
               <a
                 key={link.name}
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:text-primary/70 group inline-flex items-center gap-1 text-sm font-medium"
+                className="group flex items-center justify-between rounded-xl bg-[#F5F5F7] p-4 transition-colors hover:bg-[#E5E5E7] dark:bg-neutral-800 dark:hover:bg-neutral-700"
               >
-                {link.name}
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <span className="font-light capitalize">{link.name}</span>
+                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </a>
             ))}
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {project.images.map((img, i) => (
-          <button
-            key={img.src + i}
-            onClick={() => window.open(img.src, "_blank", "noopener,noreferrer")}
-            className="relative aspect-video cursor-pointer overflow-hidden rounded-2xl"
+      {project.images && project.images.length > 0 && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-4">
+            {project.images.map((img, i) => (
+              <div key={img.src + i} className="relative aspect-video overflow-hidden rounded-2xl">
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 900px"
+                  className="object-cover transition-transform"
+                  unoptimized
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* A single carousel card — click opens the morphing modal overlay */
+function ExpandableCard({
+  card,
+  index,
+  layout = false,
+  idPrefix,
+}: {
+  card: ExpandableCardData;
+  index: number;
+  layout?: boolean;
+  idPrefix: string;
+}) {
+  const [active, setActive] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const { onCardClose } = useContext(CarouselContext);
+
+  const handleClose = () => {
+    setActive(false);
+    onCardClose(index);
+  };
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") handleClose();
+    };
+    if (active) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "auto";
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [active]);
+
+  useClickOutside(ref, handleClose);
+
+  return (
+    <>
+      <AnimatePresence>
+        {active && (
+          <div className="fixed inset-0 z-52 h-screen overflow-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 h-full w-full bg-black/80 backdrop-blur-lg"
+            />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              ref={ref}
+              layoutId={layout ? `${idPrefix}card-${card.title}` : undefined}
+              className="relative z-[60] mx-auto my-10 h-fit max-w-5xl rounded-3xl bg-white font-sans dark:bg-neutral-900"
+            >
+              <div className="sticky top-4 z-52 flex justify-end px-8 pt-8 md:px-14 md:pt-8">
+                <button
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/90 shadow-md dark:bg-white/90"
+                  onClick={handleClose}
+                  aria-label="Close project details"
+                >
+                  <X className="h-6 w-6 text-neutral-100 dark:text-neutral-900" />
+                </button>
+              </div>
+              <div className="relative px-8 pt-2 pb-0 md:px-14">
+                <motion.p
+                  layoutId={layout ? `${idPrefix}category-${card.title}` : undefined}
+                  className="text-base font-medium text-black dark:text-white"
+                >
+                  {card.category}
+                </motion.p>
+                <motion.p
+                  layoutId={layout ? `${idPrefix}title-${card.title}` : undefined}
+                  className="mt-4 text-2xl font-semibold text-neutral-700 md:text-5xl dark:text-white"
+                >
+                  {card.title}
+                </motion.p>
+              </div>
+              <div className="px-8 pt-8 pb-14 md:px-14">{card.content}</div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <motion.button
+        layoutId={layout ? `${idPrefix}card-${card.title}` : undefined}
+        onClick={() => setActive(true)}
+        className="relative z-10 flex h-80 w-56 cursor-pointer flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-100 dark:bg-neutral-900"
+      >
+        <div className="absolute inset-x-0 top-0 z-30 h-full cursor-pointer bg-gradient-to-b from-black via-transparent to-transparent hover:scale-110" />
+        <div className="relative z-40 p-8">
+          <motion.p
+            layoutId={layout ? `${idPrefix}cat-${card.category}` : undefined}
+            className="text-left font-sans text-sm font-medium text-white md:text-base"
           >
-            <Image src={img.src} alt={img.alt} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" unoptimized />
+            {card.category}
+          </motion.p>
+          <motion.p
+            layoutId={layout ? `${idPrefix}title-${card.title}` : undefined}
+            className="max-w-xs text-left font-sans text-xl font-semibold [text-wrap:balance] text-white md:text-3xl"
+          >
+            {card.title}
+          </motion.p>
+        </div>
+        <BlurImage src={card.src} alt={card.title} className="absolute inset-0 z-10 object-cover" />
+      </motion.button>
+    </>
+  );
+}
+
+/* Horizontal scrolling carousel with arrow controls */
+function ExpandableCarousel({ items }: { items: ReactNode[] }) {
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const checkScroll = () => {
+    if (carouselRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth);
+    }
+  };
+
+  useEffect(() => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollLeft = 0;
+      checkScroll();
+    }
+  }, []);
+
+  const scrollAmount = () => 240;
+
+  return (
+    <CarouselContext.Provider
+      value={{
+        onCardClose: (index) => {
+          if (carouselRef.current) {
+            carouselRef.current.scrollTo({ left: (224 + 16) * index, behavior: "smooth" });
+            setCurrentIndex(index);
+          }
+        },
+        currentIndex,
+      }}
+    >
+      <div className="relative w-full">
+        <div
+          className="flex w-full overflow-x-scroll overscroll-x-auto scroll-smooth py-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          ref={carouselRef}
+          onScroll={checkScroll}
+        >
+          <div className="absolute right-0 z-[10] h-auto w-[5%] overflow-hidden bg-gradient-to-l" />
+          <div className="mx-auto flex max-w-7xl flex-row justify-start gap-4">
+            {items.map((item, idx) => (
+              <motion.div
+                key={"card" + idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.2 * idx, ease: "easeOut" } }}
+                className="rounded-3xl last:pr-[5%] md:last:pr-[33%]"
+              >
+                {item}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+        <div className="mr-10 flex justify-end gap-2 md:mr-20">
+          <button
+            className="relative z-40 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-100 disabled:opacity-50"
+            onClick={() => carouselRef.current?.scrollBy({ left: -scrollAmount(), behavior: "smooth" })}
+            disabled={!canScrollLeft}
+            aria-label="Scroll projects left"
+          >
+            <IconArrowNarrowLeft className="h-6 w-6 text-gray-500" />
           </button>
-        ))}
+          <button
+            className="relative z-40 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-100 disabled:opacity-50"
+            onClick={() => carouselRef.current?.scrollBy({ left: scrollAmount(), behavior: "smooth" })}
+            disabled={!canScrollRight}
+            aria-label="Scroll projects right"
+          >
+            <IconArrowNarrowRight className="h-6 w-6 text-gray-500" />
+          </button>
+        </div>
       </div>
-    </motion.div>
+    </CarouselContext.Provider>
   );
 }
 
 export function ProjectsCard() {
-  const [selected, setSelected] = useState<(typeof projects)[number] | null>(null);
-
+  const idPrefix = useId();
+  const cards: ExpandableCardData[] = projects.map((p) => ({
+    category: p.category,
+    title: p.title,
+    src: p.src,
+    content: <ProjectDetail project={p} />,
+  }));
+  const items = cards.map((card, idx) => (
+    <ExpandableCard key={card.title + idx} card={card} index={idx} layout idPrefix={idPrefix} />
+  ));
   return (
-    <motion.div
-      initial={{ scale: 0.98, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
-      className="mx-auto w-full"
-    >
-      <AnimatePresence mode="wait">
-        {selected ? (
-          <ProjectDetail key="detail" project={selected} onBack={() => setSelected(null)} />
-        ) : (
-          <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full">
-            <h2 className="text-foreground mb-4 text-2xl font-semibold md:text-3xl">My Projects</h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4">
-              {projects.map((p, idx) => (
-                <motion.button
-                  key={p.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05, duration: 0.4 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setSelected(p)}
-                  className="group bg-card text-card-foreground cursor-pointer rounded-2xl border p-3 text-left shadow-sm transition-all hover:shadow-md md:p-4"
-                >
-                  <div className="relative mb-3 aspect-square overflow-hidden rounded-xl bg-muted">
-                    {p.images[0] && (
-                      <Image
-                        src={p.images[0].src}
-                        alt={p.images[0].alt}
-                        fill
-                        sizes="(max-width: 640px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        unoptimized
-                      />
-                    )}
-                  </div>
-                  <p className="text-muted-foreground text-xs">{p.category}</p>
-                  <p className="flex items-center justify-between text-sm font-semibold">
-                    {p.title}
-                    <ChevronRight className="text-muted-foreground h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </p>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+    <div className="h-full w-full pt-8">
+      <h2 className="mx-auto max-w-7xl font-sans text-xl font-bold text-neutral-800 md:text-3xl dark:text-neutral-200">
+        My Projects
+      </h2>
+      <ExpandableCarousel items={items} />
+    </div>
   );
 }
 

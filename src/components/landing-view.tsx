@@ -19,10 +19,10 @@ const quickActions = [
 ];
 
 const quickQueries: Record<string, string> = {
-  Me: "Who are you? Tell me about yourself",
-  Projects: "Tell me about your projects",
-  Skills: "What are your skills?",
-  Fun: "Tell me something fun about you",
+  Me: "Who are you? I want to know more about you.",
+  Projects: "What are your projects? What are you working on right now?",
+  Skills: "What are your skills? Give me a list of your soft and hard skills.",
+  Fun: "What's the craziest thing you've ever done? What are your hobbies?",
   Contact: "How can I contact you?",
 };
 
