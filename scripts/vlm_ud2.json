@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**Frame 1 (Project Card):**\n1. Yes, there is a large circle (~80px).\n2. No, the content inside is not visibly magnified compared to outside.\n\n**Frame 2 (Heading Text):**\n1. Yes, there is a large circle (~80px).\n2. No, it does not contain magnified content.\n\n**Frame 3 (Button Card):**\n1. Yes, there is a large circle (~80px).\n2. No, it does not contain magnified content.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790261367,
+  "id": "20260924224924ea43a78aed21421c",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260924224924ea43a78aed21421c",
+  "usage": {
+    "completion_tokens": 107,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2737,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2844
+  }
+}

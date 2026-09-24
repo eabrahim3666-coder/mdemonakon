@@ -219,3 +219,35 @@ Work Log:
 
 Stage Summary:
 - Cursor system now matches the user's description exactly: native arrow cursor untouched everywhere; a circle follows the cursor with a smooth trailing lag; over the project showcase the circle springs into an 80px magnifying glass that merges onto the cursor position showing 1.7x magnified content; retracts over overlays
+
+---
+Task ID: 11
+Agent: Super Z (main agent)
+Task: Universal magnifying lens — circle slightly bigger; chases cursor on empty space; becomes magnifying glass over ANY content (box/element/text), not just the projects zone
+
+Work Log:
+- User clarification: native cursor stays; circle follows cursor; over EMPTY space it chases (trailing); the moment the cursor enters ANY content (box, element, text) the circle merges with the cursor and becomes the magnifying glass — everywhere on the page, like the reference video
+- REWROTE src/components/lens-cursor.tsx (universal content detection):
+  * RING_SIZE 32 → 38 ("slight more big")
+  * findContentHost(): walks up from the hovered leaf; host = first ancestor-or-self with substance (direct text / IMG / VIDEO / control / bg / gradient / border) and min-dim >= 110px, else largest substance element within caps (viewport*0.95 x vh*1.6); giant full-page surfaces, canvases and layout-only containers never qualify → ring keeps chasing there
+  * bgAlphaOf(): alpha parsing for rgba + modern color(/ a) syntax so Tailwind oklch/color-mix backgrounds are detected correctly
+  * buildClone(): clone pinned to exact rendered box (absolute, margin 0, forced width/height = rect) inside a host padded by GENERIC_PAD=56px with page-bg color — small elements (pills, buttons) get clean white context instead of unmagnified page bleed; [data-lens] zone path keeps pad=0 (exact zone rect, video behavior)
+  * zone path kept as priority 1 (closest [data-lens] + fixed-overlay guard); generic detection covers everything else incl. modal content, chat bubbles, headings, pills, inputs, images
+  * Scroll hardening: window scroll CAPTURE listener (catches page + all inner scrollers) → rAF → elementFromPoint re-detection (content moves under a stationary cursor) + syncActiveClone() syncs ALL descendant scroll positions by DOM order (carousel scrollLeft, modal body scrollTop)
+  * Click handling: mousedown → immediate retract (no stale lens over opening modal); POST_CLICK_REARM 350ms → re-detect settled content under cursor (lens re-arms over the modal's inner content — new universal behavior)
+  * DEACTIVATE_GRACE 90ms kills ring<->lens thrash at content edges; maybeRebuild() rebuilds the clone when the host's size drifts >24px (streaming text / layout shifts); input/textarea values synced into clones
+  * Follow loop dt now wall-clock (cap 500ms, was 64ms) — convergence rate identical at any frame rate; discovered headless swiftshader WebGL (fluid canvas) starves rAF to ~4fps, fixed robustness + hid canvas during demo recording to restore 55fps
+- globals.css: no changes needed this round (cursor never hidden — kept from Task 10)
+- E2E verified on localhost:3000?lensdebug=1 (agent-browser, canvas hidden for fast frames):
+  * Ring 38px on empty space; chase + exact merge (0.00-0.53px) confirmed with instrumented probe (moves logged vs ring position over time)
+  * Universal lens: hero H2 "Hey, I'm Aaaaby" (clone=H2, merge 0), chat text bubble (clone line-height 34px vs original 20px = ratio 1.700 EXACT), quick pill BUTTON (host 208x146 = 96x34+56*2 pad, page-bg), landing Me card (host 236x196, merge 0.00)
+  * Hide-original test: with the real bubble visibility:hidden, text still visible INSIDE the circle → clone provably renders in the lens
+  * Zone regression: ProjectsCard zone path (pad 0), imgRatio 1.7, merge 0.00
+  * Modal: click card → retract 38px → modal opens → re-arm at 350ms over modal inner card (clone "rounded-3xl bg-[#F5F5F7]"); modal inner scroll → clone re-syncs/re-detects under stationary cursor; Escape → zone lens reactivates
+  * Console + page errors clean; tsc + eslint clean; production gating: without lensdebug nothing mounts, native cursor auto
+- Demo video recorded (26.4s): scripts/universal_demo.webm → download/universal_lens_demo.webm — chase on empty space, lens over project cards (VLM confirmed magnified 1.5-2x on card crop), hero text, button cards
+- Fluid canvas restored after recording (display block on clean reload)
+
+Stage Summary:
+- The circle now works like the video EVERYWHERE: chases the cursor on empty space, merges + becomes a 1.7x magnifying glass over any content it touches — text, boxes, buttons, images, modals — with the project showcase keeping its zone-level lens
+- Demo: download/universal_lens_demo.webm

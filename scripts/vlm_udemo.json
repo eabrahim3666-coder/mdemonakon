@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**Frame 1:**\n1. Small ring (~38px)\n2. No\n\n**Frame 2:**\n1. Large lens (~80px)\n2. No (it is dark/empty)\n\n**Frame 3:**\n1. Small ring (~38px)\n2. No\n\n**Frame 4:**\n1. Small ring (~38px)\n2. No",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790261343,
+  "id": "20260924224900a8a3c6ad0ed44372",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260924224900a8a3c6ad0ed44372",
+  "usage": {
+    "completion_tokens": 78,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3623,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3701
+  }
+}
