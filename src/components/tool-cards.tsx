@@ -14,8 +14,6 @@ import {
   Mail,
   MapPin,
   GraduationCap,
-  Building2,
-  Bike,
   Sparkles,
   Youtube,
   X,
@@ -507,8 +505,6 @@ export function SkillsCard() {
 /* then the name, bio (+0.2s) and chips (+0.6s) cascade in             */
 /* ------------------------------------------------------------------ */
 
-const presentationChips = ["AI", "Developer", "42 Paris", "Sport", "SaaS Builder"];
-
 export function PresentationCard() {
   return (
     <motion.div
@@ -568,9 +564,9 @@ export function PresentationCard() {
               {presentation.fullName}
             </h1>
             <div className="mt-1 flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
-              <p className="text-muted-foreground text-sm">21 years old</p>
+              <p className="text-muted-foreground text-sm">{presentation.age}</p>
               <div className="bg-border hidden h-1.5 w-1.5 rounded-full md:block" />
-              <p className="text-muted-foreground text-sm">Paris, France</p>
+              <p className="text-muted-foreground text-sm">{presentation.location}</p>
             </div>
           </motion.div>
 
@@ -583,7 +579,7 @@ export function PresentationCard() {
             }}
             className="text-foreground mt-6 leading-relaxed whitespace-pre-line"
           >
-            {"Hey \uD83D\uDC4B\nI'm Raphael, also known as Aaaaby. I'm a developer specializing in AI at 42 Paris, currently working at LightOn AI. I'm passionate about AI, tech, entrepreneurship and SaaS."}
+            {presentation.intro}
           </motion.p>
 
           <motion.div
@@ -595,7 +591,7 @@ export function PresentationCard() {
             }}
             className="mt-4 flex flex-wrap gap-2"
           >
-            {presentationChips.map((chip) => (
+            {presentation.chips.map((chip) => (
               <motion.span
                 key={chip}
                 variants={{
@@ -611,15 +607,29 @@ export function PresentationCard() {
         </div>
       </div>
 
+      {/* The rest of the story — full-width section under the photo/text
+          grid, closing with the signature line in deep-blue gradient */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55, duration: 0.7, ease: APPLE_EASE }}
+        className="mt-10"
+      >
+        <p className="text-foreground mx-auto max-w-3xl text-center leading-relaxed">
+          {presentation.moreText}
+        </p>
+        <p className="mt-6 bg-gradient-to-r from-[#0A2A6B] via-[#1D4ED8] to-[#0171E3] bg-clip-text text-center text-2xl font-bold text-transparent md:text-3xl">
+          {presentation.punchline}
+        </p>
+      </motion.div>
+
       {/* Fact sheet — final wave of the cinematic cascade */}
       <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {presentation.facts.map((f, i) => {
           const icons = {
             "Based in": MapPin,
-            Studies: GraduationCap,
-            Internship: Building2,
+            "Studied at": GraduationCap,
             Focus: Sparkles,
-            Previously: Bike,
             "Open to": Briefcase,
           };
           const Icon = icons[f.label as keyof typeof icons] ?? Sparkles;

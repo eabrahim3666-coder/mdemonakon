@@ -9,10 +9,9 @@
 export const brand = {
   name: "Md. Emon",
   siteTitle: "Md. Emon Portfolio",
-  description:
-    "Portfolio of Md. Emon — Software Developer / AI Engineer. Projects, skills and contact.",
+  description: "Portfolio of Md. Emon — Software Developer. Projects, skills and contact.",
   watermark: "Emon", // giant background text on the landing page
-  role: "Software Developer / AI Engineer",
+  role: "Software Developer",
   greeting: "Hey, I'm Md. Emon \uD83D\uDC4B",
   email: "raphaelgiraud12@gmail.com",
   resume: "/giraud.pdf",
@@ -28,16 +27,21 @@ export const brand = {
 
 export const presentation = {
   fullName: "Md. Emon",
-  subtitle: "Intership Application",
   avatar: "/avatar-me.png",
-  text:
-    "I'm Raphael Giraud, a 21-year-old developer specializing in AI at 42 Paris. Formerly a high-level mountain biker, I now intern at LightOn AI in Paris. I'm passionate about AI, tech, Entrepreneurship and SaaS tech.",
+  age: "21 years old",
+  location: "Barishal, Bangladesh",
+  /* Short intro — shown BESIDE the photo in the presentation card */
+  intro:
+    "Hey, I'm Emon \uD83D\uDC4B\nI'm a backend-focused developer and SaaS builder passionate about building the systems behind modern software. I specialize in backend engineering, APIs, databases, integrations, AI, and automation, while working comfortably across the full stack when a product demands it.",
+  /* The rest of the story — full-width section UNDER the photo/text grid */
+  moreText:
+    "I enjoy taking ideas from architecture to implementation — designing the logic, connecting the systems, solving the difficult parts, and turning concepts into reliable, usable software. I'm driven by curiosity, problem-solving, and the process of building things that are useful, scalable, and built to last.",
+  punchline: "I don't just write code, I build systems.",
+  chips: ["AI", "Developer", "SaaS Builder", "Node.js", "Next.js"],
   facts: [
-    { label: "Based in", value: "Paris, France" },
-    { label: "Studies", value: "42 Paris — AI specialization" },
-    { label: "Internship", value: "LightOn AI (Paris)" },
+    { label: "Based in", value: "Barishal, Bangladesh" },
+    { label: "Studied at", value: "Govt. BM College" },
     { label: "Focus", value: "AI Engineering, SaaS, Web3" },
-    { label: "Previously", value: "High-level mountain biker" },
     { label: "Open to", value: "Internships & collaborations" },
   ],
 };

@@ -297,9 +297,9 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
               transition={{ duration: 0.5, ease: APPLE_EASE }}
               className="flex w-full flex-col items-center overflow-hidden"
             >
-              {/* The avatar — clean circular portrait badge (flat, no
-                  shadow); while the reply is being prepared it plays a
-                  gentle talking bob (like the old memoji video used to) */}
+              {/* The avatar face — transparent cutout; while the reply is
+                  being prepared it plays a gentle talking bob (like the
+                  old memoji video used to) */}
               <motion.div
                 aria-hidden="true"
                 animate={
@@ -312,14 +312,14 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                     ? { duration: 1.05, repeat: Infinity, ease: "easeInOut" }
                     : { duration: 0.35, ease: APPLE_EASE }
                 }
-                className="flex h-36 w-36 items-center justify-center overflow-hidden rounded-full bg-gradient-to-b from-[#F3F7FF] to-[#DCE8FA] sm:h-40 sm:w-40 md:h-44 md:w-44"
+                className="h-36 w-28 sm:h-40 sm:w-32 md:h-44 md:w-36"
               >
                 <Image
                   src="/avatar-face.png"
                   alt="Avatar"
                   width={789}
                   height={1000}
-                  className="h-full w-full object-cover object-top"
+                  className="h-full w-full object-contain"
                   style={{ color: "transparent" }}
                   unoptimized
                 />

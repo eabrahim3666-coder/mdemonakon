@@ -113,26 +113,24 @@ export function LandingView({ onAsk }: LandingViewProps) {
         </h1>
       </motion.div>
 
-      {/* Avatar — clean circular portrait badge, flat (no shadow) */}
+      {/* Avatar face — transparent cutout, scales up out of blur */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9, filter: "blur(6px)" }}
         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
         transition={{ delay: 0.55, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
         className="relative z-10"
       >
-        <div className="flex h-56 w-56 items-center justify-center overflow-hidden rounded-full bg-gradient-to-b from-[#F3F7FF] to-[#DCE8FA] sm:h-72 sm:w-72 md:h-96 md:w-96">
-          <Image
-            alt={`${brand.name} — avatar`}
-            width={789}
-            height={1000}
-            decoding="async"
-            priority
-            className="h-full w-full object-cover object-top"
-            style={{ color: "transparent" }}
-            src="/avatar-face.png"
-            unoptimized
-          />
-        </div>
+        <Image
+          alt={`${brand.name} — avatar`}
+          width={789}
+          height={1000}
+          decoding="async"
+          priority
+          className="h-56 w-auto object-contain sm:h-72 md:h-96"
+          style={{ color: "transparent" }}
+          src="/avatar-face.png"
+          unoptimized
+        />
       </motion.div>
 
       {/* Ask input + quick actions — rises into focus last */}

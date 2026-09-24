@@ -357,3 +357,19 @@ Stage Summary:
 - Zero image-shape shadows remain anywhere in the app; shapes changed: landing+chat avatars = circle badges with soft misty-blue gradient, presentation portrait = squircle
 - UI-element shadows (chat input, welcome modal, shadcn defaults) intentionally kept — not image shapes
 - Screenshots: scripts/noshadow-landing.png, noshadow-me-card.png, noshadow-chat-stage.png, noshadow-final-landing.png
+
+---
+Task ID: 4
+Agent: Super Z (main agent)
+Task: Restore original avatar on front page; rework about-me text (short intro beside photo + rest as section under); new tags; new address/facts; designation "Software Developer" only
+
+Work Log:
+- Restored freeform transparent cutout avatar (avatar-face.png, object-contain, NO shadow) on landing page + chat thinking stage — reverting the circle-badge change from Task 3 per user request
+- persona.ts: brand.role "Software Developer / AI Engineer" → "Software Developer"; description updated; presentation restructured → intro (beside photo), moreText + punchline (under section), chips [AI, Developer, SaaS Builder, Node.js, Next.js], age "21 years old", location "Barishal, Bangladesh", facts [Based in: Barishal Bangladesh, Studied at: Govt. BM College, Focus, Open to] — removed Studies(42 Paris)/Internship(LightOn)/Previously(mountain biker)
+- layout.tsx: all metadata titles/descriptions → "Md. Emon — Software Developer"
+- tool-cards.tsx PresentationCard: text column now shows name + age/location + short intro + chips; NEW full-width section under the grid with moreText + punchline "I don't just write code, I build systems." in deep-blue gradient (30px bold); facts icons map updated (removed Building2/Bike imports, added "Studied at": GraduationCap)
+- Verified in browser: title, h1 designation, avatar cutout (object-contain, aspect 0.79, no filter/shadow), all Me card text, chips, punchline gradient styling, 4 fact boxes; VLM confirmed clean layout, no overlaps; console clean
+
+Stage Summary:
+- Original avatar back (shadow-free per earlier request); about-me split beside/under; new tags, Barishal address, Govt. BM College; designation now "Software Developer"
+- Screenshots: scripts/update-landing.png, update-me-card.png, update-me-facts.png

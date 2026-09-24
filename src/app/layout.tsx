@@ -10,25 +10,25 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Md. Emon — Software Developer / AI Engineer",
+  title: "Md. Emon — Software Developer",
   description:
-    "Portfolio of Md. Emon — Software Developer / AI Engineer. Explore projects, skills and ways to get in touch.",
-  keywords: ["Portfolio", "Md. Emon", "Developer", "AI Engineer", "Interactive", "Web Development", "Full Stack", "Next.js", "React"],
+    "Portfolio of Md. Emon — Software Developer. Explore projects, skills and ways to get in touch.",
+  keywords: ["Portfolio", "Md. Emon", "Developer", "Software Developer", "Backend", "Interactive", "Web Development", "Full Stack", "Next.js", "React"],
   icons: {
     icon: "/favicon.svg",
     apple: "/apple-touch-icon.svg",
   },
   openGraph: {
-    title: "Md. Emon — Software Developer / AI Engineer",
-    description: "Portfolio of Md. Emon — Software Developer / AI Engineer",
+    title: "Md. Emon — Software Developer",
+    description: "Portfolio of Md. Emon — Software Developer",
     siteName: "Md. Emon Portfolio",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Md. Emon — Software Developer / AI Engineer",
-    description: "Portfolio of Md. Emon — Software Developer / AI Engineer",
+    title: "Md. Emon — Software Developer",
+    description: "Portfolio of Md. Emon — Software Developer",
   },
 };
 
