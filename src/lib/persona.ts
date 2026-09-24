@@ -28,7 +28,7 @@ export const brand = {
 export const presentation = {
   fullName: "Md. Emon",
   avatar: "/avatar-me.png",
-  age: "21 years old",
+  age: "23 years old",
   location: "Barishal, Bangladesh",
   /* Short intro — shown BESIDE the photo in the presentation card */
   intro:
@@ -37,7 +37,7 @@ export const presentation = {
   moreText:
     "I enjoy taking ideas from architecture to implementation, designing the logic, connecting the systems, solving the difficult parts, and turning concepts into reliable, usable software. I'm driven by curiosity, problem solving, and the process of building things that are useful, scalable, and built to last.",
   punchline: "I don't just write code, I build systems.",
-  chips: ["AI", "Developer", "SaaS Builder", "Node.js", "Next.js"],
+  chips: ["AI", "Developer", "SaaS Builder", "Node.js", "Next.js", "Backend", "APIs", "TypeScript"],
   facts: [
     { label: "Based in", value: "Barishal, Bangladesh" },
     { label: "Studied at", value: "Govt. BM College" },
