@@ -406,20 +406,43 @@ export function ProjectsCard() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Skills — category cards with colored chips                          */
+/* Skills — vertical cascade like the reference: container scales in   */
+/* (0.98→1, Apple ease), categories stagger at 0.1s intervals, and     */
+/* each category's chips pop in (scale .9→1) with their own stagger    */
 /* ------------------------------------------------------------------ */
 
 export function SkillsCard() {
+  const categoryVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] as const } },
+  };
+  const chipsContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+  };
+  const chipVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: "easeOut" as const } },
+  };
+
   return (
     <motion.div
       initial={{ scale: 0.98, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
-      className="mx-auto w-full"
+      transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+      className="mx-auto w-full max-w-5xl"
     >
-      <h2 className="text-foreground mb-4 text-2xl font-semibold md:text-3xl">My Skills</h2>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {skillCategories.map((cat, idx) => {
+      <h2 className="text-primary mb-8 px-2 text-3xl font-bold md:text-4xl">Skills &amp; Expertise</h2>
+      <motion.div
+        className="space-y-8 px-2"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+        }}
+        initial="hidden"
+        animate="visible"
+      >
+        {skillCategories.map((cat) => {
           const icons = {
             "Frontend Development": Layers,
             "Backend & Systems": Briefcase,
@@ -429,67 +452,127 @@ export function SkillsCard() {
           };
           const Icon = icons[cat.category as keyof typeof icons] ?? Layers;
           return (
-            <motion.div
-              key={cat.category}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.08, duration: 0.4 }}
-              className="bg-card rounded-3xl border p-5 shadow-sm sm:p-6"
-            >
-              <div className="mb-4 flex items-center gap-2">
+            <motion.div key={cat.category} variants={categoryVariants} className="space-y-3">
+              <div className="flex items-center gap-2">
                 <Icon className="text-foreground h-5 w-5" />
-                <h3 className="text-foreground text-base font-semibold">{cat.category}</h3>
+                <h3 className="text-accent-foreground text-lg font-semibold">{cat.category}</h3>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <motion.div
+                className="flex flex-wrap gap-2"
+                variants={chipsContainerVariants}
+                initial="hidden"
+                animate="visible"
+              >
                 {cat.skills.map((s) => (
-                  <span key={s} className={`rounded-full px-3 py-1 text-xs font-medium ${cat.color}`}>
+                  <motion.span
+                    key={s}
+                    variants={chipVariants}
+                    whileHover={{ scale: 1.04, transition: { duration: 0.2 } }}
+                    className={`rounded-full border px-3 py-1.5 font-normal ${cat.color}`}
+                  >
                     {s}
-                  </span>
+                  </motion.span>
                 ))}
-              </div>
+              </motion.div>
             </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Presentation — profile card with live badge                         */
+/* Presentation — "Me" card, two-column layout like the reference:     */
+/* avatar scales up from .92 over 0.8s with the Apple ease curve,      */
+/* then the name, bio (+0.2s) and chips (+0.6s) cascade in             */
 /* ------------------------------------------------------------------ */
+
+const presentationChips = ["AI", "Developer", "42 Paris", "Sport", "SaaS Builder"];
 
 export function PresentationCard() {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-accent mx-auto mt-2 w-full rounded-3xl px-6 py-8 font-sans sm:px-10 md:px-12"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="mx-auto w-full max-w-5xl py-6 font-sans"
     >
-      <div className="mb-6 flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <div className="bg-muted h-16 w-16 overflow-hidden rounded-full shadow-md">
-            <Image src={presentation.avatar} alt={presentation.fullName} width={64} height={64} className="h-full w-full object-cover" unoptimized />
-          </div>
-          <div>
-            <h2 className="text-foreground text-2xl font-semibold">{presentation.fullName}</h2>
-            <p className="text-muted-foreground text-sm">{presentation.subtitle}</p>
+      <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
+        {/* Avatar column — slow cinematic scale-up */}
+        <div className="relative mx-auto aspect-square w-full max-w-xs sm:max-w-sm">
+          <div className="relative h-full w-full overflow-hidden rounded-2xl">
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+              className="h-full w-full"
+            >
+              <Image
+                src={presentation.avatar}
+                alt={presentation.fullName}
+                width={500}
+                height={500}
+                className="h-full w-full object-cover object-center"
+                unoptimized
+              />
+            </motion.div>
           </div>
         </div>
-        <div className="flex items-center gap-2 sm:mt-0">
-          <span className="flex items-center gap-1 rounded-full border border-green-500 px-3 py-0.5 text-sm font-medium text-green-500">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-            </span>
-            Live
-          </span>
+
+        {/* Text column — staggered reveal */}
+        <div className="flex flex-col">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+            }}
+          >
+            <h1 className="from-foreground to-muted-foreground bg-gradient-to-r bg-clip-text text-xl font-semibold text-transparent md:text-3xl">
+              {presentation.fullName}
+            </h1>
+            <div className="mt-1 flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
+              <p className="text-muted-foreground text-sm">21 years old</p>
+              <div className="bg-border hidden h-1.5 w-1.5 rounded-full md:block" />
+              <p className="text-muted-foreground text-sm">Paris, France</p>
+            </div>
+          </motion.div>
+
+          <motion.p
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.2 } },
+            }}
+            className="text-foreground mt-6 leading-relaxed whitespace-pre-line"
+          >
+            {"Hey \uD83D\uDC4B\nI'm Raphael, also known as Aaaaby. I'm a developer specializing in AI at 42 Paris, currently working at LightOn AI. I'm passionate about AI, tech, entrepreneurship and SaaS."}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+            className="mt-4 flex flex-wrap gap-2"
+          >
+            {presentationChips.map((chip) => (
+              <span
+                key={chip}
+                className="bg-secondary text-secondary-foreground rounded-full px-3 py-1 text-sm"
+              >
+                {chip}
+              </span>
+            ))}
+          </motion.div>
         </div>
       </div>
-      <p className="text-accent-foreground mb-6 text-base leading-relaxed">{presentation.text}</p>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {presentation.facts.map((f) => {
+
+      {/* Fact sheet — final wave of the cinematic cascade */}
+      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {presentation.facts.map((f, i) => {
           const icons = {
             "Based in": MapPin,
             Studies: GraduationCap,
@@ -500,13 +583,19 @@ export function PresentationCard() {
           };
           const Icon = icons[f.label as keyof typeof icons] ?? Sparkles;
           return (
-            <div key={f.label} className="flex items-start gap-3">
+            <motion.div
+              key={f.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 + i * 0.06, duration: 0.45, ease: [0.19, 1, 0.22, 1] }}
+              className="bg-accent flex items-start gap-3 rounded-2xl p-4"
+            >
               <Icon className="text-foreground mt-0.5 h-5 w-5" />
               <div>
                 <p className="text-foreground text-sm font-medium">{f.label}</p>
                 <p className="text-muted-foreground text-sm">{f.value}</p>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -521,22 +610,43 @@ export function PresentationCard() {
 export function ContactCard() {
   const open = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
   return (
-    <div className="mx-auto mt-2 w-full">
-      <div className="bg-accent w-full overflow-hidden rounded-3xl px-6 py-8 font-sans sm:px-10 md:px-16 md:py-12">
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1] }}
+      className="mx-auto mt-2 w-full"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.12, duration: 0.45, ease: [0.19, 1, 0.22, 1] }}
+        className="bg-accent w-full overflow-hidden rounded-3xl px-6 py-8 font-sans sm:px-10 md:px-16 md:py-12"
+      >
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-foreground text-3xl font-semibold md:text-4xl">Contacts</h2>
           <span className="text-muted-foreground mt-2 text-sm sm:mt-0">@{brand.name}</span>
         </div>
         <div className="mt-8 flex flex-col md:mt-10">
-          <div className="group mb-5 cursor-pointer" onClick={() => open(`mailto:${brand.email}`)}>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+            className="group mb-5 cursor-pointer"
+            onClick={() => open(`mailto:${brand.email}`)}
+          >
             <div className="flex items-center gap-1">
               <span className="hover:underline text-base font-medium text-blue-500 sm:text-lg">
                 <a href={`mailto:${brand.email}`}>{brand.email}</a>
               </span>
               <Mail className="h-5 w-5 text-blue-500 transition-transform duration-300 group-hover:translate-x-1" />
             </div>
-          </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-3 sm:gap-x-8">
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.42, duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+            className="flex flex-wrap gap-x-6 gap-y-3 sm:gap-x-8"
+          >
             {brand.socials.map((s) => (
               <button
                 key={s.name}
@@ -547,49 +657,79 @@ export function ContactCard() {
                 {s.name}
               </button>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Fun — Mont Blanc adventure card with photo lightbox                 */
+/* Fun — Mont Blanc adventure card: title rises in, photo scales up,   */
+/* caption overlays on hover, lightbox on click                        */
 /* ------------------------------------------------------------------ */
 
 export function FunCard() {
   const [lightbox, setLightbox] = useState(false);
   return (
-    <div className="mx-auto w-full">
-      <div className="mb-4">
-        <h2 className="text-foreground text-3xl font-semibold md:text-4xl">{funFacts.title}</h2>
-      </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="mx-auto w-full"
+    >
       <motion.div
-        whileHover={{ scale: 1.01 }}
-        transition={{ duration: 0.2 }}
-        className="bg-accent w-full cursor-pointer overflow-hidden rounded-3xl"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="mb-8"
+      >
+        <h2 className="text-foreground text-3xl font-semibold md:text-4xl">{funFacts.title}</h2>
+      </motion.div>
+      <motion.div
+        initial={{ scale: 0.92, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+        className="relative aspect-square w-full cursor-pointer overflow-hidden rounded-2xl"
+        whileHover={{ scale: 1.02 }}
         onClick={() => setLightbox(true)}
       >
-        <div className="relative aspect-[4/3] w-full">
-          <Image
-            src={funFacts.photo.src}
-            alt={funFacts.photo.alt}
-            fill
-            sizes="(max-width: 768px) 100vw, 700px"
-            className="object-cover"
-            unoptimized
-          />
-        </div>
+        <Image
+          src={funFacts.photo.src}
+          alt={funFacts.photo.alt}
+          fill
+          sizes="(max-width: 768px) 100vw, 700px"
+          className="h-full w-full object-cover transition-transform"
+          unoptimized
+        />
+        {funFacts.photo.caption && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileHover={{ opacity: 1 }}
+            className="absolute inset-0 flex items-end bg-black/30 p-4"
+          >
+            <p className="text-sm font-medium text-white sm:text-base">{funFacts.photo.caption}</p>
+          </motion.div>
+        )}
       </motion.div>
-      <p className="text-muted-foreground mt-4 text-sm leading-relaxed">{funFacts.text}</p>
-      <button
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
+        className="text-muted-foreground mt-4 text-sm leading-relaxed"
+      >
+        {funFacts.text}
+      </motion.p>
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8, duration: 0.5 }}
         onClick={() => window.open(funFacts.video, "_blank", "noopener,noreferrer")}
         className="mt-3 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-red-500 hover:underline"
       >
         <Youtube className="h-5 w-5" />
         Watch the adventure on YouTube
-      </button>
+      </motion.button>
 
       <AnimatePresence>
         {lightbox && (
@@ -597,7 +737,7 @@ export function FunCard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 p-4"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
             onClick={() => setLightbox(false)}
           >
             <div className="relative max-h-[85vh] max-w-[90vw]">
@@ -616,7 +756,7 @@ export function FunCard() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 

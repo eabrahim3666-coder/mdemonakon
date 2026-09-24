@@ -19,6 +19,22 @@ const VALID_TOOLS = ["projects", "skills", "presentation", "fun", "contact"] as 
 type ToolName = (typeof VALID_TOOLS)[number];
 const TAG_PREFIX = "[TOOL:";
 
+/**
+ * The quick-action buttons (home + in-chat) send these exact queries.
+ * They map to deterministic tool cards — exactly like the reference site,
+ * clicking "Contact" ALWAYS shows the contact card, no matter what the
+ * conversation already covered. The route force-emits the tool event so
+ * model variability can never swallow the card.
+ */
+const QUICK_QUERY_TOOLS: Record<string, ToolName> = {
+  "who are you? i want to know more about you.": "presentation",
+  "what are your projects? what are you working on right now?": "projects",
+  "what are your skills? give me a list of your soft and hard skills.": "skills",
+  "what's the craziest thing you've ever done? what are your hobbies?": "fun",
+  "what's the craziest thing you've ever done? (mb?) what are your hobbies?": "fun",
+  "how can i contact you?": "contact",
+};
+
 function buildSystemPrompt(): string {
   const projectLines = projects
     .map(
@@ -59,7 +75,7 @@ Rules for tags:
 1. Emit AT MOST ONE tag per message, and put it at the very BEGINNING of your reply.
 2. Emit the tag INSTEAD of listing the info in text — the card renders above your message, so do NOT repeat its content.
 3. After the tag, add a short friendly follow-up (e.g. "You can check out all my skills right above! Anything specific you want to dig into?").
-4. If the conversation already showed a card for that topic, or the user asks a SPECIFIC follow-up question, answer in plain text using your knowledge below — no tag needed.
+4. ALWAYS emit the tag when the user asks about one of the five topics (projects, skills, who you are, fun, contact) — even if a card for that topic appeared earlier in the conversation. Only skip the tag for SPECIFIC follow-up questions about a single item (e.g. "tell me more about Synto").
 5. For greetings / small talk / questions about the site itself, just chat in text.
 
 ## YOUR KNOWLEDGE
@@ -135,6 +151,10 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // Deterministic tool card for quick-action queries (matches the reference
+  // site: every quick button click always shows its card).
+  const forcedTool = QUICK_QUERY_TOOLS[lastUser.content.trim().toLowerCase()] ?? null;
+
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
@@ -154,6 +174,13 @@ export async function POST(req: NextRequest) {
       let pending = "";
       // strip leading whitespace only from the very first text emission
       let emittedText = false;
+
+      // Force-emit the deterministic tool card first, if this is a
+      // quick-action query. Emitted before any model output so the card
+      // starts its cinematic entrance while the text streams in.
+      if (forcedTool) {
+        send({ type: "tool", name: forcedTool });
+      }
 
       const emitText = (value: string) => {
         if (!emittedText) {

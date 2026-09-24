@@ -68,3 +68,23 @@ Work Log:
 Stage Summary:
 - Projects tool card now behaves exactly like the original: buttons never disappear on click — the clicked card morphs into a full-screen detail modal floating above the still-visible carousel
 - Screenshots: scripts/clone_modal_open.png, clone_carousel_modal.png, clone_modal_scrolled.png, clone_mobile_modal.png, clone_final_verified.png
+
+---
+Task ID: 4
+Agent: Super Z (main agent)
+Task: Cinematic data entrance + "new chat per button click" architecture + avatar vanish on content load
+
+Work Log:
+- Decoded original site's exact animation choreography from decompiled chat_page.js: message variants (opacity/y 20, 0.3s easeOut), presentation card cascade (image scale .92→1 0.8s Apple ease, name rise 0.6s, bio +0.2s, chips +0.6s), skills stagger (staggerChildren .1, chips scale .9→1 0.3s), carousel cards (delay .2*idx)
+- KEY DISCOVERY: original renders quick-action pills INSIDE the chat view (above input, with Show/Hide toggle) — clicking one submits a new query = new chat turn
+- Rewrote chat-view.tsx: single-turn architecture (only current exchange renders), QuickQuestions row with toggle, user bubble in header under memoji while waiting, loading dots state
+- Rewrote all 5 tool cards with reference-exact cinematic cascades (PresentationCard two-column w/ avatar scale-up, SkillsCard vertical stagger cascade, ContactCard layered rise, FunCard title→photo→text sequence)
+- Found + fixed AnimatePresence mode="wait" deadlock: response data now renders as untracked keyed sibling; landing/loading stay keyed
+- Fixed intermittent missing tool card: route.ts now FORCE-EMITS deterministic tool event for the 5 quick queries (QUICK_QUERY_TOOLS map) before model output + client-side tool dedupe; system prompt rule 4 changed to always emit tag on topic questions
+- User feedback round 2: (1) avatar must vanish COMPLETELY when content loads → wrapped memoji+user-bubble in AnimatePresence with exit (opacity 0, y -36, height 0) — header collapses to 52px back-button row, content gets full screen; (2) smoother entrance → container rises 0.55s Apple ease y:28, avatar re-appears per new turn (video play effect now keyed on assistantStarted+userTurns), tightened card cascade timings (facts 0.55+i*0.06/0.45s, contact 0.55/0.45s waves)
+- E2E verified with agent-browser: avatar on stage while waiting → vanishes when data loads → returns for next turn → vanishes again; all 5 cards render sequentially (Me→Projects→Skills→Fun→Contact→Skills→Projects); no console errors; mobile 390px verified; eslint + tsc clean
+
+Stage Summary:
+- Clicking any quick button now feels like a fresh chat: avatar returns with your question, dots pulse, then avatar dissolves upward + content rises in cinematically with staggered card cascade
+- Deterministic tool cards (forced emission) — model variability can never swallow a card again
+- Screenshots: scripts/vanish_*.png, final_*.png, seq_*.png; videos: scripts/avatar_cycle.webm, cinematic_flow.webm
