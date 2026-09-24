@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided:\n\n(A) **The native OS arrow cursor is not visible** in this crop. The image is entirely black, showing no graphical elements or cursors.\n(B) **A circle/ring is not visible** in this crop. Consequently, there is no circle to describe the size of or to determine the cursor's position relative to it.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790241043,
+  "id": "2026092417103783b040eb9c7d4284",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026092417103783b040eb9c7d4284",
+  "usage": {
+    "completion_tokens": 74,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 670,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 744
+  }
+}

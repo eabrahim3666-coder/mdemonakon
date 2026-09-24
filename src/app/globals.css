@@ -120,13 +120,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-/* ------------------------------------------------------------------ */
-/* Lens cursor: while the custom magnifying-lens cursor is active the  */
-/* native system cursor is hidden everywhere — the white ring becomes  */
-/* the cursor, exactly like the reference video.                       */
-/* ------------------------------------------------------------------ */
-.no-native-cursor,
-.no-native-cursor * {
-  cursor: none !important;
-}

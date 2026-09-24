@@ -192,3 +192,30 @@ Stage Summary:
 - The video's magnifying-lens cursor is fully replicated: white ring cursor everywhere, 80px 1.7x magnifying lens over the project carousel, spring morph, zero lag, modal-aware retraction
 - Screenshots: scripts/lens_active.png, lens_on/off.png + crops, lens_text_test.png (VLM-confirmed magnification), lens_reactivated.png
 - Video + frames preserved in upload/hover_video.mp4, upload/frame_*.png, upload/seq_*.png
+
+---
+Task ID: 10
+Agent: Super Z (main agent)
+Task: Fix lens cursor per user's correction — native cursor must stay unchanged; circle just follows the cursor; on content hover the circle merges with the cursor and becomes a magnifying glass
+
+Work Log:
+- Re-analyzed the reference video with fresh evidence: frame-diff located the cursor path; 3x/4x zoomed crops + VLM found the native arrow cursor VISIBLE at the circle's edge during motion (previous full-frame analysis missed it); video-understand pass confirmed: circle trails behind while moving, centers exactly on the cursor when stationary, magnifying glass centered on the cursor over content
+- REWROTE src/components/lens-cursor.tsx:
+  * REMOVED the no-native-cursor effect entirely — the OS arrow cursor is never hidden (user: "the cursour remain same")
+  * Added trailing-follow physics: cx/cy motion values driven by a rAF loop with frame-rate-independent exponential lerp toward raw mouse (mx/my); RING_RATE=12/s (playful trail), LENS_RATE=22/s (tight merge) — trails behind while moving, converges exactly when stopped
+  * First-appearance snap: on first mousemove (and document re-entry) the follower snaps onto the cursor instead of gliding in from off-screen
+  * Ring size 26→32px (arrow sits inside when merged); lens stays 80px / 1.7x / 2px border
+  * Magnification shift now anchored to the CIRCLE center (not raw mouse) — the lens always magnifies exactly what it sits on, like a real loupe dragged across the page
+  * Unchanged: data-lens zone detection, deep-clone magnification, carousel scrollLeft sync, fixed-overlay (modal) guard, pointer:fine + lensdebug gating
+- globals.css: removed the .no-native-cursor cursor:none rule
+- E2E verified on localhost:3000?lensdebug=1 via agent-browser CDP mouse events:
+  * Native cursor: html/body computed cursor = auto, no hidden class, CSS rule gone
+  * Trailing: fast jump 300,300→800,500 — ring still at old spot immediately, converges when idle; final merge EXACT (0.00px offset)
+  * Lens over project carousel: ring 80px + 2px border, clone mounted (736x508 zone), settled center EXACTLY at mouse; shift math exact (-177.6/-368 matches formula); clone images render at exactly 1.7x (224→380.8px); VLM visually confirmed magnified sharp text inside the lens
+  * Lens trailing during glide within zone (immediate sample lags, settles merged); zone exit retracts to 32px ring with clone unmounted
+  * Modal guard: click card with lens active → modal opens (z-52 fixed overlay) → lens retracts to ring; Escape → re-enter zone → lens reactivates
+  * Console + page errors clean; tsc/eslint clean (pre-existing fluid-background tsc noise untouched); production gating verified (no lensdebug in headless → nothing mounts)
+- Demo video recorded: scripts/follower_demo.webm (also copied to download/cursor_follower_demo.webm) — note: headless recording cannot capture the OS cursor itself, only the follower circle's motion
+
+Stage Summary:
+- Cursor system now matches the user's description exactly: native arrow cursor untouched everywhere; a circle follows the cursor with a smooth trailing lag; over the project showcase the circle springs into an 80px magnifying glass that merges onto the cursor position showing 1.7x magnified content; retracts over overlays

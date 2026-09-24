@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "(A) The native OS arrow cursor is located in the upper-right area of the crop, positioned just above the circle. It is a small, white arrow pointing up and to the left.\n(B) There is a large, grey circle (ring) in the lower-right portion of the image. The arrow cursor is **OUTSIDE** the circle. The circle is **not** centered on the arrow cursor; it is positioned below and slightly to the left of it.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790241032,
+  "id": "20260924171030433a651a9ddf48b6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260924171030433a651a9ddf48b6",
+  "usage": {
+    "completion_tokens": 95,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 670,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 765
+  }
+}

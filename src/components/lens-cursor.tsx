@@ -6,25 +6,34 @@ import { useSyncExternalStore } from "react";
 import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 
 /* ------------------------------------------------------------------ */
-/* Magnifying lens cursor — exact replica of the reference video:      */
+/* Magnifying lens follower — corrected per user's clarification:      */
 /*                                                                     */
-/*  • A small white ring (~26px, 1.25px border) replaces the system    */
-/*    cursor everywhere on the page.                                   */
+/*  • The native OS cursor is left COMPLETELY UNTOUCHED (never hidden) */
+/*    — the arrow stays exactly as the system draws it, everywhere.    */
+/*  • A circle follows the cursor wherever it moves: it trails behind  */
+/*    while the cursor is in motion and merges back onto the cursor    */
+/*    the moment it stops.                                             */
 /*  • Over any element marked [data-lens] (the project showcase zone)  */
-/*    the ring springs open into an 80px lens that shows a ~1.7x       */
-/*    magnified, pixel-identical clone of the content beneath it.      */
-/*  • Position tracks the mouse 1:1 with zero latency (only the size   */
-/*    morphs, ~200ms spring) — exactly as measured from the video.     */
+/*    the circle springs open into an 80px lens that merges with the   */
+/*    cursor position and shows a ~1.7x magnified, pixel-identical     */
+/*    clone of the content beneath it — a magnifying glass.            */
 /*  • The ring uses mix-blend-mode: difference so it stays crisp on    */
-/*    light AND dark backgrounds (the video's site is dark; ours is    */
-/*    light — difference blending is the faithful adaptation).         */
+/*    light AND dark backgrounds.                                      */
 /* ------------------------------------------------------------------ */
 
 const LENS_SIZE = 80;
-const RING_SIZE = 26;
+const RING_SIZE = 32;
 const ZOOM = 1.7;
 const RING_BORDER = 1.25;
 const LENS_BORDER = 2;
+
+/* Exponential follow rates (per second). Higher = tighter coupling.
+   Ring state trails playfully behind the moving cursor; lens state
+   hugs the cursor tightly — that's the "merge" the moment content is
+   hovered: the circle converges onto the cursor and becomes the
+   magnifying glass. Both converge exactly when the cursor stops. */
+const RING_RATE = 12;
+const LENS_RATE = 22;
 
 /* Stable no-op subscription for useSyncExternalStore */
 const noopSubscribe = () => () => {};
@@ -51,13 +60,22 @@ export function LensCursor() {
     () => false,
   );
 
-  /* Mouse position — motion values so position updates never re-render */
+  /* Raw mouse target (updated by mousemove) */
   const mx = useMotionValue(-200);
   const my = useMotionValue(-200);
+
+  /* Smoothed follower position — where the circle actually is */
+  const cx = useMotionValue(-200);
+  const cy = useMotionValue(-200);
 
   /* Animated geometry: circle size + border width morph ring <-> lens */
   const size = useMotionValue(RING_SIZE);
   const borderW = useMotionValue(RING_BORDER);
+
+  /* Mirror state into refs so the rAF loop reads fresh values
+     without re-subscribing */
+  const lensOnRef = useRef(false);
+  const visibleRef = useRef(false);
 
   /* Lens zone captured on activation (original element + its viewport
      rect) — refreshed on every mousemove so the clone stays aligned */
@@ -67,23 +85,37 @@ export function LensCursor() {
   const hostRef = useRef<HTMLDivElement>(null);
   const cleanupScrollRef = useRef<(() => void) | null>(null);
 
-  /* Content shift: maps the point under the mouse to the circle center.
-     shift = size/2 - ZOOM * (mouse - zoneOrigin)  (scale origin fixed
+  /* Content shift: maps the point under the CIRCLE center to the
+     circle center. The circle trails the cursor, so the lens always
+     magnifies exactly what it is sitting on — like a real loupe being
+     dragged across the page.
+     shift = size/2 - ZOOM * (circle - zoneOrigin)  (scale origin fixed
      at 0 0, so the zoom layer compensates through translation alone) */
-  const shiftX = useTransform([mx, size], (v: number[]) => v[1] / 2 - ZOOM * (v[0] - zoneLeft.current));
-  const shiftY = useTransform([my, size], (v: number[]) => v[1] / 2 - ZOOM * (v[0] - zoneTop.current));
+  const shiftX = useTransform([cx, size], (v: number[]) => v[1] / 2 - ZOOM * (v[0] - zoneLeft.current));
+  const shiftY = useTransform([cy, size], (v: number[]) => v[1] / 2 - ZOOM * (v[0] - zoneTop.current));
 
-  /* Hide the native cursor while the custom one is active */
+  /* Trailing-follow loop: exponential approach of the circle toward
+     the raw cursor position, frame-rate independent */
   useEffect(() => {
     if (!enabled) return;
-    document.documentElement.classList.add("no-native-cursor");
-    return () => {
-      document.documentElement.classList.remove("no-native-cursor");
+    let raf = 0;
+    let last = performance.now();
+    const loop = (now: number) => {
+      const dt = Math.min(64, now - last) / 1000;
+      last = now;
+      const rate = lensOnRef.current ? LENS_RATE : RING_RATE;
+      const alpha = 1 - Math.exp(-rate * dt);
+      cx.set(cx.get() + (mx.get() - cx.get()) * alpha);
+      cy.set(cy.get() + (my.get() - cy.get()) * alpha);
+      raf = requestAnimationFrame(loop);
     };
-  }, [enabled]);
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [enabled, cx, cy, mx, my]);
 
   /* Ring <-> lens size morph */
   useEffect(() => {
+    lensOnRef.current = lensOn;
     if (!enabled) return;
     const a1 = animate(size, lensOn ? LENS_SIZE : RING_SIZE, {
       type: "spring",
@@ -157,7 +189,15 @@ export function LensCursor() {
     const onMouseMove = (e: MouseEvent) => {
       mx.set(e.clientX);
       my.set(e.clientY);
-      setVisible(true);
+      /* First appearance (or re-entry into the document): snap the
+         follower straight onto the cursor instead of gliding in from
+         wherever it was last seen. */
+      if (!visibleRef.current) {
+        visibleRef.current = true;
+        cx.set(e.clientX);
+        cy.set(e.clientY);
+        setVisible(true);
+      }
       if (sourceRef.current) {
         const rect = sourceRef.current.getBoundingClientRect();
         zoneLeft.current = rect.left;
@@ -195,7 +235,10 @@ export function LensCursor() {
         if (!el || !isWithinVisibleZone(el, sourceRef.current)) deactivateLens();
       }, 60);
     };
-    const onDocLeave = () => setVisible(false);
+    const onDocLeave = () => {
+      visibleRef.current = false;
+      setVisible(false);
+    };
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     window.addEventListener("mouseover", onMouseOver, { passive: true });
@@ -209,7 +252,7 @@ export function LensCursor() {
       document.documentElement.removeEventListener("mouseleave", onDocLeave);
       teardownClone();
     };
-  }, [enabled, mx, my]);
+  }, [enabled, mx, my, cx, cy]);
 
   if (!mounted || !enabled) return null;
 
@@ -220,8 +263,8 @@ export function LensCursor() {
       <motion.div
         data-testid="lens-content"
         style={{
-          x: mx,
-          y: my,
+          x: cx,
+          y: cy,
           position: "fixed",
           top: 0,
           left: 0,
@@ -267,14 +310,16 @@ export function LensCursor() {
         </motion.div>
       </motion.div>
 
-      {/* Ring layer — white circle, difference-blended so it stays visible
-          on any background. Shares the same `size` motion value as the
-          content clip, so the two circles can never drift apart. */}
+      {/* Ring layer — the follower circle. Difference-blended so it stays
+          visible on any background. Shares the same `size` motion value
+          as the content clip, so the two circles can never drift apart.
+          The native OS cursor is NOT hidden — the arrow stays on top of
+          everything, exactly as the user described. */}
       <motion.div
         data-testid="lens-ring"
         style={{
-          x: mx,
-          y: my,
+          x: cx,
+          y: cy,
           position: "fixed",
           top: 0,
           left: 0,
