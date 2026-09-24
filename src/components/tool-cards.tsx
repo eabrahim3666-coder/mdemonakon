@@ -25,6 +25,10 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { brand, presentation, projects, skillCategories, funFacts, type Project } from "@/lib/persona";
 
+/* Apple-style ease curve used across the reference site — one shared rhythm
+   so every card entrance feels like the same cinematic "voice" */
+const APPLE_EASE = [0.19, 1, 0.22, 1] as const;
+
 /* ------------------------------------------------------------------ */
 /* Projects — expandable card carousel (like the original site):       */
 /* the cards NEVER disappear on click — instead the clicked card       */
@@ -352,8 +356,8 @@ function ExpandableCarousel({ items }: { items: ReactNode[] }) {
             {items.map((item, idx) => (
               <motion.div
                 key={"card" + idx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.2 * idx, ease: "easeOut" } }}
+                initial={{ opacity: 0, y: 28 }}
+                animate={{ opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.15 + 0.12 * idx, ease: APPLE_EASE } }}
                 className="rounded-3xl last:pr-[5%] md:last:pr-[33%]"
               >
                 {item}
@@ -397,9 +401,14 @@ export function ProjectsCard() {
   ));
   return (
     <div className="h-full w-full pt-8">
-      <h2 className="mx-auto max-w-7xl font-sans text-xl font-bold text-neutral-800 md:text-3xl dark:text-neutral-200">
+      <motion.h2
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: APPLE_EASE }}
+        className="mx-auto max-w-7xl font-sans text-xl font-bold text-neutral-800 md:text-3xl dark:text-neutral-200"
+      >
         My Projects
-      </h2>
+      </motion.h2>
       <ExpandableCarousel items={items} />
     </div>
   );
@@ -413,31 +422,38 @@ export function ProjectsCard() {
 
 export function SkillsCard() {
   const categoryVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] as const } },
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: APPLE_EASE } },
   };
   const chipsContainerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
   };
   const chipVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: "easeOut" as const } },
+    hidden: { opacity: 0, scale: 0.85 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: "easeOut" as const } },
   };
 
   return (
     <motion.div
       initial={{ scale: 0.98, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 0.7, ease: APPLE_EASE }}
       className="mx-auto w-full max-w-5xl"
     >
-      <h2 className="text-primary mb-8 px-2 text-3xl font-bold md:text-4xl">Skills &amp; Expertise</h2>
+      <motion.h2
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.6, ease: APPLE_EASE }}
+        className="text-primary mb-8 px-2 text-3xl font-bold md:text-4xl"
+      >
+        Skills &amp; Expertise
+      </motion.h2>
       <motion.div
         className="space-y-8 px-2"
         variants={{
           hidden: { opacity: 0 },
-          visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+          visible: { opacity: 1, transition: { staggerChildren: 0.12 } },
         }}
         initial="hidden"
         animate="visible"
@@ -495,7 +511,7 @@ export function PresentationCard() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.4 }}
       className="mx-auto w-full max-w-5xl py-6 font-sans"
     >
       <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
@@ -505,7 +521,7 @@ export function PresentationCard() {
             <motion.div
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+              transition={{ duration: 0.9, ease: APPLE_EASE }}
               className="h-full w-full"
             >
               <Image
@@ -526,8 +542,8 @@ export function PresentationCard() {
             initial="hidden"
             animate="visible"
             variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+              hidden: { opacity: 0, y: 24 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: APPLE_EASE, delay: 0.25 } },
             }}
           >
             <h1 className="from-foreground to-muted-foreground bg-gradient-to-r bg-clip-text text-xl font-semibold text-transparent md:text-3xl">
@@ -544,8 +560,8 @@ export function PresentationCard() {
             initial="hidden"
             animate="visible"
             variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.2 } },
+              hidden: { opacity: 0, y: 24 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: APPLE_EASE, delay: 0.45 } },
             }}
             className="text-foreground mt-6 leading-relaxed whitespace-pre-line"
           >
@@ -553,18 +569,25 @@ export function PresentationCard() {
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { delayChildren: 0.65, staggerChildren: 0.07 } },
+            }}
             className="mt-4 flex flex-wrap gap-2"
           >
             {presentationChips.map((chip) => (
-              <span
+              <motion.span
                 key={chip}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.8, y: 8 },
+                  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: APPLE_EASE } },
+                }}
                 className="bg-secondary text-secondary-foreground rounded-full px-3 py-1 text-sm"
               >
                 {chip}
-              </span>
+              </motion.span>
             ))}
           </motion.div>
         </div>
@@ -585,9 +608,9 @@ export function PresentationCard() {
           return (
             <motion.div
               key={f.label}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55 + i * 0.06, duration: 0.45, ease: [0.19, 1, 0.22, 1] }}
+              transition={{ delay: 0.9 + i * 0.09, duration: 0.5, ease: APPLE_EASE }}
               className="bg-accent flex items-start gap-3 rounded-2xl p-4"
             >
               <Icon className="text-foreground mt-0.5 h-5 w-5" />
@@ -611,15 +634,15 @@ export function ContactCard() {
   const open = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
   return (
     <motion.div
-      initial={{ opacity: 0, y: 32 }}
+      initial={{ opacity: 0, y: 36 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 0.7, ease: APPLE_EASE }}
       className="mx-auto mt-2 w-full"
     >
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.12, duration: 0.45, ease: [0.19, 1, 0.22, 1] }}
+        transition={{ delay: 0.15, duration: 0.6, ease: APPLE_EASE }}
         className="bg-accent w-full overflow-hidden rounded-3xl px-6 py-8 font-sans sm:px-10 md:px-16 md:py-12"
       >
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -628,9 +651,9 @@ export function ContactCard() {
         </div>
         <div className="mt-8 flex flex-col md:mt-10">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+            transition={{ delay: 0.45, duration: 0.5, ease: APPLE_EASE }}
             className="group mb-5 cursor-pointer"
             onClick={() => open(`mailto:${brand.email}`)}
           >
@@ -642,20 +665,27 @@ export function ContactCard() {
             </div>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.42, duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { delayChildren: 0.6, staggerChildren: 0.06 } },
+            }}
             className="flex flex-wrap gap-x-6 gap-y-3 sm:gap-x-8"
           >
             {brand.socials.map((s) => (
-              <button
+              <motion.button
                 key={s.name}
+                variants={{
+                  hidden: { opacity: 0, y: 12 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: APPLE_EASE } },
+                }}
                 className="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors"
                 onClick={() => open(s.url)}
                 title={s.name}
               >
                 {s.name}
-              </button>
+              </motion.button>
             ))}
           </motion.div>
         </div>
@@ -679,17 +709,17 @@ export function FunCard() {
       className="mx-auto w-full"
     >
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.6, ease: APPLE_EASE, delay: 0.05 }}
         className="mb-8"
       >
         <h2 className="text-foreground text-3xl font-semibold md:text-4xl">{funFacts.title}</h2>
       </motion.div>
       <motion.div
-        initial={{ scale: 0.92, opacity: 0 }}
+        initial={{ scale: 0.94, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+        transition={{ delay: 0.25, duration: 0.9, ease: APPLE_EASE }}
         className="relative aspect-square w-full cursor-pointer overflow-hidden rounded-2xl"
         whileHover={{ scale: 1.02 }}
         onClick={() => setLightbox(true)}
@@ -713,9 +743,9 @@ export function FunCard() {
         )}
       </motion.div>
       <motion.p
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
+        transition={{ delay: 0.7, duration: 0.6, ease: APPLE_EASE }}
         className="text-muted-foreground mt-4 text-sm leading-relaxed"
       >
         {funFacts.text}
@@ -723,7 +753,7 @@ export function FunCard() {
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.5 }}
+        transition={{ delay: 0.95, duration: 0.5 }}
         onClick={() => window.open(funFacts.video, "_blank", "noopener,noreferrer")}
         className="mt-3 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-red-500 hover:underline"
       >

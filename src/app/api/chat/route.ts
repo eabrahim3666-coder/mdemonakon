@@ -104,6 +104,8 @@ function sanitizeHistory(messages: ChatMessage[]): ChatMessage[] {
   }));
 }
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 interface OutEvent {
   type: "text" | "tool" | "error" | "finish";
   value?: string;
@@ -175,11 +177,15 @@ export async function POST(req: NextRequest) {
       // strip leading whitespace only from the very first text emission
       let emittedText = false;
 
-      // Force-emit the deterministic tool card first, if this is a
-      // quick-action query. Emitted before any model output so the card
-      // starts its cinematic entrance while the text streams in.
+      // Cinematic timeline for quick-action queries (the "AI responding"
+      // vibe from the reference): first a thinking beat where the loading
+      // dots pulse and the memoji talks, THEN the card begins its grand
+      // entrance, and only after a second beat does the text start typing
+      // below it — a layered reveal instead of everything at once.
       if (forcedTool) {
+        await sleep(700);
         send({ type: "tool", name: forcedTool });
+        await sleep(350);
       }
 
       const emitText = (value: string) => {

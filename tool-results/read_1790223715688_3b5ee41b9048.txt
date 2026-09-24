@@ -1,0 +1,787 @@
+     1→"use client";
+     2→
+     3→import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
+     4→import type { ReactNode, RefObject, SVGProps } from "react";
+     5→import Image from "next/image";
+     6→import { motion, AnimatePresence } from "framer-motion";
+     7→import {
+     8→  Briefcase,
+     9→  Layers,
+    10→  PartyPopper,
+    11→  UserRoundSearch,
+    12→  Laugh,
+    13→  ChevronRight,
+    14→  Mail,
+    15→  MapPin,
+    16→  GraduationCap,
+    17→  Building2,
+    18→  Bike,
+    19→  Sparkles,
+    20→  Youtube,
+    21→  X,
+    22→  Link as LinkIcon,
+    23→} from "lucide-react";
+    24→import { Separator } from "@/components/ui/separator";
+    25→import { cn } from "@/lib/utils";
+    26→import { brand, presentation, projects, skillCategories, funFacts, type Project } from "@/lib/persona";
+    27→
+    28→/* ------------------------------------------------------------------ */
+    29→/* Projects — expandable card carousel (like the original site):       */
+    30→/* the cards NEVER disappear on click — instead the clicked card       */
+    31→/* morphs (framer-motion layoutId) into a full-screen modal overlay    */
+    32→/* that floats above the still-visible carousel.                      */
+    33→/* ------------------------------------------------------------------ */
+    34→
+    35→interface ExpandableCardData {
+    36→  category: string;
+    37→  title: string;
+    38→  src: string;
+    39→  content: ReactNode;
+    40→}
+    41→
+    42→interface CarouselCtx {
+    43→  onCardClose: (index: number) => void;
+    44→  currentIndex: number;
+    45→}
+    46→
+    47→const CarouselContext = createContext<CarouselCtx>({
+    48→  onCardClose: () => {},
+    49→  currentIndex: 0,
+    50→});
+    51→
+    52→function useClickOutside(ref: RefObject<HTMLDivElement | null>, handler: () => void) {
+    53→  useEffect(() => {
+    54→    const listener = (event: MouseEvent | TouchEvent) => {
+    55→      if (!ref.current || ref.current.contains(event.target as Node)) return;
+    56→      handler();
+    57→    };
+    58→    document.addEventListener("mousedown", listener);
+    59→    document.addEventListener("touchstart", listener);
+    60→    return () => {
+    61→      document.removeEventListener("mousedown", listener);
+    62→      document.removeEventListener("touchstart", listener);
+    63→    };
+    64→  }, [ref, handler]);
+    65→}
+    66→
+    67→/* Exact SVG replicas of the original site's arrow-narrow-left/right icons */
+    68→function IconArrowNarrowLeft(props: SVGProps<SVGSVGElement>) {
+    69→  return (
+    70→    <svg
+    71→      xmlns="http://www.w3.org/2000/svg"
+    72→      width="24"
+    73→      height="24"
+    74→      viewBox="0 0 24 24"
+    75→      fill="none"
+    76→      stroke="currentColor"
+    77→      strokeWidth="2"
+    78→      strokeLinecap="round"
+    79→      strokeLinejoin="round"
+    80→      {...props}
+    81→    >
+    82→      <path d="M5 12l14 0" />
+    83→      <path d="M5 12l4 4" />
+    84→      <path d="M5 12l4 -4" />
+    85→    </svg>
+    86→  );
+    87→}
+    88→
+    89→function IconArrowNarrowRight(props: SVGProps<SVGSVGElement>) {
+    90→  return (
+    91→    <svg
+    92→      xmlns="http://www.w3.org/2000/svg"
+    93→      width="24"
+    94→      height="24"
+    95→      viewBox="0 0 24 24"
+    96→      fill="none"
+    97→      stroke="currentColor"
+    98→      strokeWidth="2"
+    99→      strokeLinecap="round"
+   100→      strokeLinejoin="round"
+   101→      {...props}
+   102→    >
+   103→      <path d="M5 12l14 0" />
+   104→      <path d="M15 16l4 -4" />
+   105→      <path d="M15 8l4 4" />
+   106→    </svg>
+   107→  );
+   108→}
+   109→
+   110→/* Preview image with blur-up loading effect (as the original) */
+   111→function BlurImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+   112→  const [blurred, setBlurred] = useState(true);
+   113→  return (
+   114→    <Image
+   115→      src={src}
+   116→      alt={alt}
+   117→      fill
+   118→      sizes="224px"
+   119→      loading="lazy"
+   120→      decoding="async"
+   121→      onLoad={() => setBlurred(false)}
+   122→      className={cn("transition duration-300", blurred ? "blur-sm" : "blur-0", className)}
+   123→      unoptimized
+   124→    />
+   125→  );
+   126→}
+   127→
+   128→/* The detail content shown inside the expanded modal */
+   129→function ProjectDetail({ project }: { project: Project }) {
+   130→  return (
+   131→    <div className="space-y-10">
+   132→      <div className="rounded-3xl bg-[#F5F5F7] p-8 dark:bg-[#1D1D1F]">
+   133→        <div className="space-y-6">
+   134→          <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
+   135→            <span>{project.date}</span>
+   136→          </div>
+   137→          <p className="text-secondary-foreground font-sans text-base leading-relaxed md:text-lg">
+   138→            {project.description}
+   139→          </p>
+   140→          <div className="pt-4">
+   141→            <h3 className="mb-3 text-sm uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Technologies</h3>
+   142→            <div className="flex flex-wrap gap-2">
+   143→              {project.techStack.map((tech) => (
+   144→                <span
+   145→                  key={tech}
+   146→                  className="rounded-full bg-neutral-200 px-3 py-1 text-sm text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
+   147→                >
+   148→                  {tech}
+   149→                </span>
+   150→              ))}
+   151→            </div>
+   152→          </div>
+   153→        </div>
+   154→      </div>
+   155→
+   156→      {project.links && project.links.length > 0 && (
+   157→        <div className="mb-24">
+   158→          <div className="mb-4 flex items-center gap-2 px-6">
+   159→            <h3 className="text-sm uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Links</h3>
+   160→            <LinkIcon className="w-4 text-muted-foreground" />
+   161→          </div>
+   162→          <Separator className="my-4" />
+   163→          <div className="space-y-3">
+   164→            {project.links.map((link) => (
+   165→              <a
+   166→                key={link.name}
+   167→                href={link.url}
+   168→                target="_blank"
+   169→                rel="noopener noreferrer"
+   170→                className="group flex items-center justify-between rounded-xl bg-[#F5F5F7] p-4 transition-colors hover:bg-[#E5E5E7] dark:bg-neutral-800 dark:hover:bg-neutral-700"
+   171→              >
+   172→                <span className="font-light capitalize">{link.name}</span>
+   173→                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+   174→              </a>
+   175→            ))}
+   176→          </div>
+   177→        </div>
+   178→      )}
+   179→
+   180→      {project.images && project.images.length > 0 && (
+   181→        <div className="space-y-6">
+   182→          <div className="grid grid-cols-1 gap-4">
+   183→            {project.images.map((img, i) => (
+   184→              <div key={img.src + i} className="relative aspect-video overflow-hidden rounded-2xl">
+   185→                <Image
+   186→                  src={img.src}
+   187→                  alt={img.alt}
+   188→                  fill
+   189→                  sizes="(max-width: 768px) 100vw, 900px"
+   190→                  className="object-cover transition-transform"
+   191→                  unoptimized
+   192→                />
+   193→              </div>
+   194→            ))}
+   195→          </div>
+   196→        </div>
+   197→      )}
+   198→    </div>
+   199→  );
+   200→}
+   201→
+   202→/* A single carousel card — click opens the morphing modal overlay */
+   203→function ExpandableCard({
+   204→  card,
+   205→  index,
+   206→  layout = false,
+   207→  idPrefix,
+   208→}: {
+   209→  card: ExpandableCardData;
+   210→  index: number;
+   211→  layout?: boolean;
+   212→  idPrefix: string;
+   213→}) {
+   214→  const [active, setActive] = useState(false);
+   215→  const ref = useRef<HTMLDivElement>(null);
+   216→  const { onCardClose } = useContext(CarouselContext);
+   217→
+   218→  const handleClose = () => {
+   219→    setActive(false);
+   220→    onCardClose(index);
+   221→  };
+   222→
+   223→  useEffect(() => {
+   224→    const onKeyDown = (event: KeyboardEvent) => {
+   225→      if (event.key === "Escape") handleClose();
+   226→    };
+   227→    if (active) document.body.style.overflow = "hidden";
+   228→    else document.body.style.overflow = "auto";
+   229→    window.addEventListener("keydown", onKeyDown);
+   230→    return () => window.removeEventListener("keydown", onKeyDown);
+   231→  }, [active]);
+   232→
+   233→  useClickOutside(ref, handleClose);
+   234→
+   235→  return (
+   236→    <>
+   237→      <AnimatePresence>
+   238→        {active && (
+   239→          <div className="fixed inset-0 z-52 h-screen overflow-auto">
+   240→            <motion.div
+   241→              initial={{ opacity: 0 }}
+   242→              animate={{ opacity: 1 }}
+   243→              exit={{ opacity: 0 }}
+   244→              className="fixed inset-0 h-full w-full bg-black/80 backdrop-blur-lg"
+   245→            />
+   246→            <motion.div
+   247→              initial={{ opacity: 0 }}
+   248→              animate={{ opacity: 1 }}
+   249→              exit={{ opacity: 0 }}
+   250→              ref={ref}
+   251→              layoutId={layout ? `${idPrefix}card-${card.title}` : undefined}
+   252→              className="relative z-[60] mx-auto my-10 h-fit max-w-5xl rounded-3xl bg-white font-sans dark:bg-neutral-900"
+   253→            >
+   254→              <div className="sticky top-4 z-52 flex justify-end px-8 pt-8 md:px-14 md:pt-8">
+   255→                <button
+   256→                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/90 shadow-md dark:bg-white/90"
+   257→                  onClick={handleClose}
+   258→                  aria-label="Close project details"
+   259→                >
+   260→                  <X className="h-6 w-6 text-neutral-100 dark:text-neutral-900" />
+   261→                </button>
+   262→              </div>
+   263→              <div className="relative px-8 pt-2 pb-0 md:px-14">
+   264→                <motion.p
+   265→                  layoutId={layout ? `${idPrefix}category-${card.title}` : undefined}
+   266→                  className="text-base font-medium text-black dark:text-white"
+   267→                >
+   268→                  {card.category}
+   269→                </motion.p>
+   270→                <motion.p
+   271→                  layoutId={layout ? `${idPrefix}title-${card.title}` : undefined}
+   272→                  className="mt-4 text-2xl font-semibold text-neutral-700 md:text-5xl dark:text-white"
+   273→                >
+   274→                  {card.title}
+   275→                </motion.p>
+   276→              </div>
+   277→              <div className="px-8 pt-8 pb-14 md:px-14">{card.content}</div>
+   278→            </motion.div>
+   279→          </div>
+   280→        )}
+   281→      </AnimatePresence>
+   282→      <motion.button
+   283→        layoutId={layout ? `${idPrefix}card-${card.title}` : undefined}
+   284→        onClick={() => setActive(true)}
+   285→        className="relative z-10 flex h-80 w-56 cursor-pointer flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-100 dark:bg-neutral-900"
+   286→      >
+   287→        <div className="absolute inset-x-0 top-0 z-30 h-full cursor-pointer bg-gradient-to-b from-black via-transparent to-transparent hover:scale-110" />
+   288→        <div className="relative z-40 p-8">
+   289→          <motion.p
+   290→            layoutId={layout ? `${idPrefix}cat-${card.category}` : undefined}
+   291→            className="text-left font-sans text-sm font-medium text-white md:text-base"
+   292→          >
+   293→            {card.category}
+   294→          </motion.p>
+   295→          <motion.p
+   296→            layoutId={layout ? `${idPrefix}title-${card.title}` : undefined}
+   297→            className="max-w-xs text-left font-sans text-xl font-semibold [text-wrap:balance] text-white md:text-3xl"
+   298→          >
+   299→            {card.title}
+   300→          </motion.p>
+   301→        </div>
+   302→        <BlurImage src={card.src} alt={card.title} className="absolute inset-0 z-10 object-cover" />
+   303→      </motion.button>
+   304→    </>
+   305→  );
+   306→}
+   307→
+   308→/* Horizontal scrolling carousel with arrow controls */
+   309→function ExpandableCarousel({ items }: { items: ReactNode[] }) {
+   310→  const carouselRef = useRef<HTMLDivElement>(null);
+   311→  const [canScrollLeft, setCanScrollLeft] = useState(false);
+   312→  const [canScrollRight, setCanScrollRight] = useState(true);
+   313→  const [currentIndex, setCurrentIndex] = useState(0);
+   314→
+   315→  const checkScroll = () => {
+   316→    if (carouselRef.current) {
+   317→      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+   318→      setCanScrollLeft(scrollLeft > 0);
+   319→      setCanScrollRight(scrollLeft < scrollWidth - clientWidth);
+   320→    }
+   321→  };
+   322→
+   323→  useEffect(() => {
+   324→    if (carouselRef.current) {
+   325→      carouselRef.current.scrollLeft = 0;
+   326→      checkScroll();
+   327→    }
+   328→  }, []);
+   329→
+   330→  const scrollAmount = () => 240;
+   331→
+   332→  return (
+   333→    <CarouselContext.Provider
+   334→      value={{
+   335→        onCardClose: (index) => {
+   336→          if (carouselRef.current) {
+   337→            carouselRef.current.scrollTo({ left: (224 + 16) * index, behavior: "smooth" });
+   338→            setCurrentIndex(index);
+   339→          }
+   340→        },
+   341→        currentIndex,
+   342→      }}
+   343→    >
+   344→      <div className="relative w-full">
+   345→        <div
+   346→          className="flex w-full overflow-x-scroll overscroll-x-auto scroll-smooth py-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+   347→          ref={carouselRef}
+   348→          onScroll={checkScroll}
+   349→        >
+   350→          <div className="absolute right-0 z-[10] h-auto w-[5%] overflow-hidden bg-gradient-to-l" />
+   351→          <div className="mx-auto flex max-w-7xl flex-row justify-start gap-4">
+   352→            {items.map((item, idx) => (
+   353→              <motion.div
+   354→                key={"card" + idx}
+   355→                initial={{ opacity: 0, y: 20 }}
+   356→                animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.2 * idx, ease: "easeOut" } }}
+   357→                className="rounded-3xl last:pr-[5%] md:last:pr-[33%]"
+   358→              >
+   359→                {item}
+   360→              </motion.div>
+   361→            ))}
+   362→          </div>
+   363→        </div>
+   364→        <div className="mr-10 flex justify-end gap-2 md:mr-20">
+   365→          <button
+   366→            className="relative z-40 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-100 disabled:opacity-50"
+   367→            onClick={() => carouselRef.current?.scrollBy({ left: -scrollAmount(), behavior: "smooth" })}
+   368→            disabled={!canScrollLeft}
+   369→            aria-label="Scroll projects left"
+   370→          >
+   371→            <IconArrowNarrowLeft className="h-6 w-6 text-gray-500" />
+   372→          </button>
+   373→          <button
+   374→            className="relative z-40 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-100 disabled:opacity-50"
+   375→            onClick={() => carouselRef.current?.scrollBy({ left: scrollAmount(), behavior: "smooth" })}
+   376→            disabled={!canScrollRight}
+   377→            aria-label="Scroll projects right"
+   378→          >
+   379→            <IconArrowNarrowRight className="h-6 w-6 text-gray-500" />
+   380→          </button>
+   381→        </div>
+   382→      </div>
+   383→    </CarouselContext.Provider>
+   384→  );
+   385→}
+   386→
+   387→export function ProjectsCard() {
+   388→  const idPrefix = useId();
+   389→  const cards: ExpandableCardData[] = projects.map((p) => ({
+   390→    category: p.category,
+   391→    title: p.title,
+   392→    src: p.src,
+   393→    content: <ProjectDetail project={p} />,
+   394→  }));
+   395→  const items = cards.map((card, idx) => (
+   396→    <ExpandableCard key={card.title + idx} card={card} index={idx} layout idPrefix={idPrefix} />
+   397→  ));
+   398→  return (
+   399→    <div className="h-full w-full pt-8">
+   400→      <h2 className="mx-auto max-w-7xl font-sans text-xl font-bold text-neutral-800 md:text-3xl dark:text-neutral-200">
+   401→        My Projects
+   402→      </h2>
+   403→      <ExpandableCarousel items={items} />
+   404→    </div>
+   405→  );
+   406→}
+   407→
+   408→/* ------------------------------------------------------------------ */
+   409→/* Skills — vertical cascade like the reference: container scales in   */
+   410→/* (0.98→1, Apple ease), categories stagger at 0.1s intervals, and     */
+   411→/* each category's chips pop in (scale .9→1) with their own stagger    */
+   412→/* ------------------------------------------------------------------ */
+   413→
+   414→export function SkillsCard() {
+   415→  const categoryVariants = {
+   416→    hidden: { opacity: 0, y: 20 },
+   417→    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] as const } },
+   418→  };
+   419→  const chipsContainerVariants = {
+   420→    hidden: { opacity: 0 },
+   421→    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+   422→  };
+   423→  const chipVariants = {
+   424→    hidden: { opacity: 0, scale: 0.9 },
+   425→    visible: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: "easeOut" as const } },
+   426→  };
+   427→
+   428→  return (
+   429→    <motion.div
+   430→      initial={{ scale: 0.98, opacity: 0 }}
+   431→      animate={{ scale: 1, opacity: 1 }}
+   432→      transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+   433→      className="mx-auto w-full max-w-5xl"
+   434→    >
+   435→      <h2 className="text-primary mb-8 px-2 text-3xl font-bold md:text-4xl">Skills &amp; Expertise</h2>
+   436→      <motion.div
+   437→        className="space-y-8 px-2"
+   438→        variants={{
+   439→          hidden: { opacity: 0 },
+   440→          visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+   441→        }}
+   442→        initial="hidden"
+   443→        animate="visible"
+   444→      >
+   445→        {skillCategories.map((cat) => {
+   446→          const icons = {
+   447→            "Frontend Development": Layers,
+   448→            "Backend & Systems": Briefcase,
+   449→            "AI & Fullstack Engineering": Sparkles,
+   450→            "Design & Creative Tools": Sparkles,
+   451→            "Soft Skills": Laugh,
+   452→          };
+   453→          const Icon = icons[cat.category as keyof typeof icons] ?? Layers;
+   454→          return (
+   455→            <motion.div key={cat.category} variants={categoryVariants} className="space-y-3">
+   456→              <div className="flex items-center gap-2">
+   457→                <Icon className="text-foreground h-5 w-5" />
+   458→                <h3 className="text-accent-foreground text-lg font-semibold">{cat.category}</h3>
+   459→              </div>
+   460→              <motion.div
+   461→                className="flex flex-wrap gap-2"
+   462→                variants={chipsContainerVariants}
+   463→                initial="hidden"
+   464→                animate="visible"
+   465→              >
+   466→                {cat.skills.map((s) => (
+   467→                  <motion.span
+   468→                    key={s}
+   469→                    variants={chipVariants}
+   470→                    whileHover={{ scale: 1.04, transition: { duration: 0.2 } }}
+   471→                    className={`rounded-full border px-3 py-1.5 font-normal ${cat.color}`}
+   472→                  >
+   473→                    {s}
+   474→                  </motion.span>
+   475→                ))}
+   476→              </motion.div>
+   477→            </motion.div>
+   478→          );
+   479→        })}
+   480→      </motion.div>
+   481→    </motion.div>
+   482→  );
+   483→}
+   484→
+   485→/* ------------------------------------------------------------------ */
+   486→/* Presentation — "Me" card, two-column layout like the reference:     */
+   487→/* avatar scales up from .92 over 0.8s with the Apple ease curve,      */
+   488→/* then the name, bio (+0.2s) and chips (+0.6s) cascade in             */
+   489→/* ------------------------------------------------------------------ */
+   490→
+   491→const presentationChips = ["AI", "Developer", "42 Paris", "Sport", "SaaS Builder"];
+   492→
+   493→export function PresentationCard() {
+   494→  return (
+   495→    <motion.div
+   496→      initial={{ opacity: 0 }}
+   497→      animate={{ opacity: 1 }}
+   498→      transition={{ duration: 0.3 }}
+   499→      className="mx-auto w-full max-w-5xl py-6 font-sans"
+   500→    >
+   501→      <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
+   502→        {/* Avatar column — slow cinematic scale-up */}
+   503→        <div className="relative mx-auto aspect-square w-full max-w-xs sm:max-w-sm">
+   504→          <div className="relative h-full w-full overflow-hidden rounded-2xl">
+   505→            <motion.div
+   506→              initial={{ scale: 0.92, opacity: 0 }}
+   507→              animate={{ scale: 1, opacity: 1 }}
+   508→              transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+   509→              className="h-full w-full"
+   510→            >
+   511→              <Image
+   512→                src={presentation.avatar}
+   513→                alt={presentation.fullName}
+   514→                width={500}
+   515→                height={500}
+   516→                className="h-full w-full object-cover object-center"
+   517→                unoptimized
+   518→              />
+   519→            </motion.div>
+   520→          </div>
+   521→        </div>
+   522→
+   523→        {/* Text column — staggered reveal */}
+   524→        <div className="flex flex-col">
+   525→          <motion.div
+   526→            initial="hidden"
+   527→            animate="visible"
+   528→            variants={{
+   529→              hidden: { opacity: 0, y: 20 },
+   530→              visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+   531→            }}
+   532→          >
+   533→            <h1 className="from-foreground to-muted-foreground bg-gradient-to-r bg-clip-text text-xl font-semibold text-transparent md:text-3xl">
+   534→              {presentation.fullName}
+   535→            </h1>
+   536→            <div className="mt-1 flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
+   537→              <p className="text-muted-foreground text-sm">21 years old</p>
+   538→              <div className="bg-border hidden h-1.5 w-1.5 rounded-full md:block" />
+   539→              <p className="text-muted-foreground text-sm">Paris, France</p>
+   540→            </div>
+   541→          </motion.div>
+   542→
+   543→          <motion.p
+   544→            initial="hidden"
+   545→            animate="visible"
+   546→            variants={{
+   547→              hidden: { opacity: 0, y: 20 },
+   548→              visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay: 0.2 } },
+   549→            }}
+   550→            className="text-foreground mt-6 leading-relaxed whitespace-pre-line"
+   551→          >
+   552→            {"Hey \uD83D\uDC4B\nI'm Raphael, also known as Aaaaby. I'm a developer specializing in AI at 42 Paris, currently working at LightOn AI. I'm passionate about AI, tech, entrepreneurship and SaaS."}
+   553→          </motion.p>
+   554→
+   555→          <motion.div
+   556→            initial={{ opacity: 0 }}
+   557→            animate={{ opacity: 1 }}
+   558→            transition={{ delay: 0.6, duration: 0.5 }}
+   559→            className="mt-4 flex flex-wrap gap-2"
+   560→          >
+   561→            {presentationChips.map((chip) => (
+   562→              <span
+   563→                key={chip}
+   564→                className="bg-secondary text-secondary-foreground rounded-full px-3 py-1 text-sm"
+   565→              >
+   566→                {chip}
+   567→              </span>
+   568→            ))}
+   569→          </motion.div>
+   570→        </div>
+   571→      </div>
+   572→
+   573→      {/* Fact sheet — final wave of the cinematic cascade */}
+   574→      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+   575→        {presentation.facts.map((f, i) => {
+   576→          const icons = {
+   577→            "Based in": MapPin,
+   578→            Studies: GraduationCap,
+   579→            Internship: Building2,
+   580→            Focus: Sparkles,
+   581→            Previously: Bike,
+   582→            "Open to": Briefcase,
+   583→          };
+   584→          const Icon = icons[f.label as keyof typeof icons] ?? Sparkles;
+   585→          return (
+   586→            <motion.div
+   587→              key={f.label}
+   588→              initial={{ opacity: 0, y: 16 }}
+   589→              animate={{ opacity: 1, y: 0 }}
+   590→              transition={{ delay: 0.55 + i * 0.06, duration: 0.45, ease: [0.19, 1, 0.22, 1] }}
+   591→              className="bg-accent flex items-start gap-3 rounded-2xl p-4"
+   592→            >
+   593→              <Icon className="text-foreground mt-0.5 h-5 w-5" />
+   594→              <div>
+   595→                <p className="text-foreground text-sm font-medium">{f.label}</p>
+   596→                <p className="text-muted-foreground text-sm">{f.value}</p>
+   597→              </div>
+   598→            </motion.div>
+   599→          );
+   600→        })}
+   601→      </div>
+   602→    </motion.div>
+   603→  );
+   604→}
+   605→
+   606→/* ------------------------------------------------------------------ */
+   607→/* Contact — big card with email + socials                             */
+   608→/* ------------------------------------------------------------------ */
+   609→
+   610→export function ContactCard() {
+   611→  const open = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
+   612→  return (
+   613→    <motion.div
+   614→      initial={{ opacity: 0, y: 32 }}
+   615→      animate={{ opacity: 1, y: 0 }}
+   616→      transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1] }}
+   617→      className="mx-auto mt-2 w-full"
+   618→    >
+   619→      <motion.div
+   620→        initial={{ opacity: 0, y: 16 }}
+   621→        animate={{ opacity: 1, y: 0 }}
+   622→        transition={{ delay: 0.12, duration: 0.45, ease: [0.19, 1, 0.22, 1] }}
+   623→        className="bg-accent w-full overflow-hidden rounded-3xl px-6 py-8 font-sans sm:px-10 md:px-16 md:py-12"
+   624→      >
+   625→        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+   626→          <h2 className="text-foreground text-3xl font-semibold md:text-4xl">Contacts</h2>
+   627→          <span className="text-muted-foreground mt-2 text-sm sm:mt-0">@{brand.name}</span>
+   628→        </div>
+   629→        <div className="mt-8 flex flex-col md:mt-10">
+   630→          <motion.div
+   631→            initial={{ opacity: 0, y: 10 }}
+   632→            animate={{ opacity: 1, y: 0 }}
+   633→            transition={{ delay: 0.3, duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+   634→            className="group mb-5 cursor-pointer"
+   635→            onClick={() => open(`mailto:${brand.email}`)}
+   636→          >
+   637→            <div className="flex items-center gap-1">
+   638→              <span className="hover:underline text-base font-medium text-blue-500 sm:text-lg">
+   639→                <a href={`mailto:${brand.email}`}>{brand.email}</a>
+   640→              </span>
+   641→              <Mail className="h-5 w-5 text-blue-500 transition-transform duration-300 group-hover:translate-x-1" />
+   642→            </div>
+   643→          </motion.div>
+   644→          <motion.div
+   645→            initial={{ opacity: 0, y: 10 }}
+   646→            animate={{ opacity: 1, y: 0 }}
+   647→            transition={{ delay: 0.42, duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+   648→            className="flex flex-wrap gap-x-6 gap-y-3 sm:gap-x-8"
+   649→          >
+   650→            {brand.socials.map((s) => (
+   651→              <button
+   652→                key={s.name}
+   653→                className="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors"
+   654→                onClick={() => open(s.url)}
+   655→                title={s.name}
+   656→              >
+   657→                {s.name}
+   658→              </button>
+   659→            ))}
+   660→          </motion.div>
+   661→        </div>
+   662→      </motion.div>
+   663→    </motion.div>
+   664→  );
+   665→}
+   666→
+   667→/* ------------------------------------------------------------------ */
+   668→/* Fun — Mont Blanc adventure card: title rises in, photo scales up,   */
+   669→/* caption overlays on hover, lightbox on click                        */
+   670→/* ------------------------------------------------------------------ */
+   671→
+   672→export function FunCard() {
+   673→  const [lightbox, setLightbox] = useState(false);
+   674→  return (
+   675→    <motion.div
+   676→      initial={{ opacity: 0 }}
+   677→      animate={{ opacity: 1 }}
+   678→      transition={{ duration: 0.3 }}
+   679→      className="mx-auto w-full"
+   680→    >
+   681→      <motion.div
+   682→        initial={{ opacity: 0, y: 20 }}
+   683→        animate={{ opacity: 1, y: 0 }}
+   684→        transition={{ duration: 0.5, ease: "easeOut" }}
+   685→        className="mb-8"
+   686→      >
+   687→        <h2 className="text-foreground text-3xl font-semibold md:text-4xl">{funFacts.title}</h2>
+   688→      </motion.div>
+   689→      <motion.div
+   690→        initial={{ scale: 0.92, opacity: 0 }}
+   691→        animate={{ scale: 1, opacity: 1 }}
+   692→        transition={{ delay: 0.2, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+   693→        className="relative aspect-square w-full cursor-pointer overflow-hidden rounded-2xl"
+   694→        whileHover={{ scale: 1.02 }}
+   695→        onClick={() => setLightbox(true)}
+   696→      >
+   697→        <Image
+   698→          src={funFacts.photo.src}
+   699→          alt={funFacts.photo.alt}
+   700→          fill
+   701→          sizes="(max-width: 768px) 100vw, 700px"
+   702→          className="h-full w-full object-cover transition-transform"
+   703→          unoptimized
+   704→        />
+   705→        {funFacts.photo.caption && (
+   706→          <motion.div
+   707→            initial={{ opacity: 0 }}
+   708→            whileHover={{ opacity: 1 }}
+   709→            className="absolute inset-0 flex items-end bg-black/30 p-4"
+   710→          >
+   711→            <p className="text-sm font-medium text-white sm:text-base">{funFacts.photo.caption}</p>
+   712→          </motion.div>
+   713→        )}
+   714→      </motion.div>
+   715→      <motion.p
+   716→        initial={{ opacity: 0, y: 20 }}
+   717→        animate={{ opacity: 1, y: 0 }}
+   718→        transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
+   719→        className="text-muted-foreground mt-4 text-sm leading-relaxed"
+   720→      >
+   721→        {funFacts.text}
+   722→      </motion.p>
+   723→      <motion.button
+   724→        initial={{ opacity: 0 }}
+   725→        animate={{ opacity: 1 }}
+   726→        transition={{ delay: 0.8, duration: 0.5 }}
+   727→        onClick={() => window.open(funFacts.video, "_blank", "noopener,noreferrer")}
+   728→        className="mt-3 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-red-500 hover:underline"
+   729→      >
+   730→        <Youtube className="h-5 w-5" />
+   731→        Watch the adventure on YouTube
+   732→      </motion.button>
+   733→
+   734→      <AnimatePresence>
+   735→        {lightbox && (
+   736→          <motion.div
+   737→            initial={{ opacity: 0 }}
+   738→            animate={{ opacity: 1 }}
+   739→            exit={{ opacity: 0 }}
+   740→            className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+   741→            onClick={() => setLightbox(false)}
+   742→          >
+   743→            <div className="relative max-h-[85vh] max-w-[90vw]">
+   744→              <Image
+   745→                src={funFacts.photo.src}
+   746→                alt={funFacts.photo.alt}
+   747→                width={1200}
+   748→                height={900}
+   749→                className="max-h-[85vh] w-auto max-w-[90vw] rounded-xl object-contain"
+   750→                unoptimized
+   751→              />
+   752→              <button className="absolute top-3 right-3 cursor-pointer rounded-full bg-black/70 p-2 text-white">
+   753→                <X className="h-5 w-5" />
+   754→              </button>
+   755→            </div>
+   756→          </motion.div>
+   757→        )}
+   758→      </AnimatePresence>
+   759→    </motion.div>
+   760→  );
+   761→}
+   762→
+   763→/* ------------------------------------------------------------------ */
+   764→/* Router                                                               */
+   765→/* ------------------------------------------------------------------ */
+   766→
+   767→export type ToolName = "projects" | "skills" | "presentation" | "fun" | "contact";
+   768→
+   769→export function ToolCard({ name }: { name: ToolName }) {
+   770→  switch (name) {
+   771→    case "projects":
+   772→      return <ProjectsCard />;
+   773→    case "skills":
+   774→      return <SkillsCard />;
+   775→    case "presentation":
+   776→      return <PresentationCard />;
+   777→    case "fun":
+   778→      return <FunCard />;
+   779→    case "contact":
+   780→      return <ContactCard />;
+   781→    default:
+   782→      return null;
+   783→  }
+   784→}
+   785→
+   786→export const toolIcons = { Briefcase, Layers, PartyPopper, UserRoundSearch, Laugh };
+   787→

@@ -82,15 +82,15 @@ function QuickQuestions({
               key={key}
               onClick={() => !disabled && onQuickAction(quickQueries[key])}
               whileTap={disabled ? {} : { scale: 0.95 }}
-              className={`h-auto min-w-[100px] flex-shrink-0 rounded-xl border px-4 py-3 shadow-none backdrop-blur-sm transition-colors ${
+              className={`h-auto min-w-[96px] flex-shrink-0 rounded-xl border px-4 py-2 shadow-none backdrop-blur-sm transition-colors ${
                 disabled
                   ? "cursor-not-allowed border-gray-200 bg-gray-100 opacity-50"
                   : "border-border hover:bg-border/30 cursor-pointer bg-white/80 active:scale-95"
               }`}
               disabled={disabled}
             >
-              <div className="flex items-center gap-3 text-gray-700">
-                <Icon size={18} strokeWidth={2} color={color} />
+              <div className="flex items-center gap-2.5 text-gray-700">
+                <Icon size={17} strokeWidth={2} color={color} />
                 <span className="text-sm font-medium">{key}</span>
               </div>
             </motion.button>
@@ -105,12 +105,19 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const sentInitial = useRef(false);
   /* Synchronous streaming guard — state updates are batched in React 18,
      so a stale `isStreaming` closure could theoretically allow overlapping
      sends. The ref flips immediately, making double-sends impossible. */
   const streamingRef = useRef(false);
+  /* Bottom-following scroll: while the AI streams we PIN the viewport to
+     the bottom (instant, ChatGPT-style) instead of restarting a smooth
+     scroll on every token — that restart was the "unstable" jitter.
+     Card entrances glide (smooth). If the user scrolls up to read, we
+     stop following until they return or a new turn starts. */
+  const stickToBottom = useRef(true);
+  const lastWasTool = useRef(false);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -153,6 +160,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
               continue;
             }
             if (evt.type === "text" && evt.value) {
+              lastWasTool.current = false;
               setConversation((prev) => {
                 const next = [...prev];
                 const last = next[next.length - 1];
@@ -162,6 +170,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                 return next;
               });
             } else if (evt.type === "tool" && evt.name) {
+              lastWasTool.current = true;
               setConversation((prev) => {
                 const next = [...prev];
                 const last = next[next.length - 1];
@@ -243,10 +252,30 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
     }
   }, [isStreaming, assistantStarted, userTurns]);
 
-  // Auto-scroll as the response data comes in
+  // Every new turn re-engages bottom-following (fresh chat, fresh scroll)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [conversation, isStreaming]);
+    stickToBottom.current = true;
+    lastWasTool.current = false;
+  }, [userTurns]);
+
+  // Follow the content as it grows: the card entrance glides down smoothly,
+  // streamed tokens pin the bottom instantly (no smooth-restart jitter).
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el || !assistantStarted || !stickToBottom.current) return;
+    if (lastWasTool.current) {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    } else {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [conversation, assistantStarted]);
+
+  // User scrolled up to read → stop yanking them around
+  const handleMainScroll = useCallback(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 140;
+  }, []);
 
   const submit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -271,7 +300,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
           starts arriving it dissolves upward and collapses to zero
           height, handing the whole screen to the content. */}
       <header className="z-10 flex flex-col items-center px-4 pt-3">
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full items-center justify-between md:pl-72">
           <button
             onClick={onBack}
             aria-label="Back to home"
@@ -330,7 +359,7 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
           response data. The response container rises in with a single
           smooth Apple-ease motion while the tool cards layer their own
           staggered cascade on top (the cinema). */}
-      <main className="z-10 flex-1 overflow-y-auto px-2 md:px-4">
+      <main ref={mainRef} onScroll={handleMainScroll} className="z-10 flex-1 overflow-y-auto px-2 md:px-4">
         <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col">
           <AnimatePresence mode="wait">
             {!hasMessages && (
@@ -361,10 +390,10 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                         visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
                       }}
                       onClick={() => sendMessage(quickQueries[key])}
-                      className="border-border hover:bg-border/30 bg-card/30 mb-3 aspect-square w-full max-w-[140px] cursor-pointer rounded-2xl border py-6 shadow-none backdrop-blur-lg active:scale-95"
+                      className="border-border hover:bg-border/30 bg-card/30 mb-3 aspect-square w-full max-w-[124px] cursor-pointer rounded-2xl border py-4 shadow-none backdrop-blur-lg active:scale-95"
                     >
                       <div className="flex h-full flex-col items-center justify-center gap-1 text-gray-700">
-                        <Icon width={22} height={22} color={color} strokeWidth={2} />
+                        <Icon width={20} height={20} color={color} strokeWidth={2} />
                         <span className="text-xs font-medium sm:text-sm">{key}</span>
                       </div>
                     </motion.button>
@@ -374,27 +403,31 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
             )}
           </AnimatePresence>
 
-          {/* Loading dots — visible only while the response is cooking,
-              replaced the instant data begins to arrive */}
-          {hasMessages && !assistantStarted && (
-            <motion.div
-              key="loading-dots"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="flex w-full items-start px-2 pt-8 md:px-4"
-            >
-              <div className="flex items-center gap-1.5 rounded-2xl bg-[#ECECF0] px-5 py-3.5 shadow-sm dark:bg-neutral-800">
-                {[0, 1, 2].map((dot) => (
-                  <span
-                    key={dot}
-                    className="h-2 w-2 animate-bounce rounded-full bg-neutral-400"
-                    style={{ animationDelay: `${dot * 0.15}s` }}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          )}
+          {/* Loading dots — they pulse while the AI "thinks" (the beat
+              before the cinematic entrance), then dissolve upward the
+              moment data begins to arrive — no more instant vanishing */}
+          <AnimatePresence initial={false}>
+            {hasMessages && !assistantStarted && (
+              <motion.div
+                key="loading-dots"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12, transition: { duration: 0.35, ease: APPLE_EASE } }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="flex w-full items-start px-2 pt-8 md:px-4"
+              >
+                <div className="flex items-center gap-1.5 rounded-2xl bg-[#ECECF0] px-5 py-3.5 shadow-sm dark:bg-neutral-800">
+                  {[0, 1, 2].map((dot) => (
+                    <span
+                      key={dot}
+                      className="h-2 w-2 animate-bounce rounded-full bg-neutral-400"
+                      style={{ animationDelay: `${dot * 0.15}s` }}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* The response data — tool cards + streamed text. Keyed per turn
               so every new button click replays the entrance: the container
@@ -403,10 +436,10 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
             {assistantStarted && (
               <motion.div
                 key={`turn-${userTurns}`}
-                initial={{ opacity: 0, y: 28 }}
+                initial={{ opacity: 0, y: 32 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -14, transition: { duration: 0.22, ease: "easeOut" } }}
-                transition={{ duration: 0.55, ease: APPLE_EASE }}
+                transition={{ duration: 0.65, ease: APPLE_EASE }}
                 className="flex w-full flex-col px-2 pt-2 pb-4 md:px-4"
               >
                 {currentAssistant?.tools?.map((tool, j) => (
@@ -415,7 +448,12 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                   </div>
                 ))}
                 {currentAssistant?.content ? (
-                  <div className="w-full">
+                  <motion.div
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.45, ease: APPLE_EASE }}
+                    className="w-full"
+                  >
                     <div className="rounded-2xl bg-[#ECECF0] px-5 py-3 shadow-sm dark:bg-neutral-800">
                       <p
                         className={`text-sm leading-relaxed break-words whitespace-pre-wrap text-neutral-800 sm:text-base dark:text-neutral-100 ${
@@ -428,13 +466,13 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                         )}
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
                 ) : null}
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div ref={bottomRef} className="h-1" />
+          <div className="h-1" />
         </div>
       </main>
 

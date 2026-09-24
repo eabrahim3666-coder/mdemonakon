@@ -88,3 +88,24 @@ Stage Summary:
 - Clicking any quick button now feels like a fresh chat: avatar returns with your question, dots pulse, then avatar dissolves upward + content rises in cinematically with staggered card cascade
 - Deterministic tool cards (forced emission) — model variability can never swallow a card again
 - Screenshots: scripts/vanish_*.png, final_*.png, seq_*.png; videos: scripts/avatar_cycle.webm, cinematic_flow.webm
+
+---
+Task ID: 5
+Agent: Super Z (main agent)
+Task: Fix "cinematic entrance missing/unstable" — content must appear slowly with AI-responding vibe, not all at once; slightly reduce quick button height
+
+Work Log:
+- Diagnosed root causes of "all at once + unstable" feel: (1) forcedTool event fired at stream START (~200ms after click) so loading dots flashed for a split second and vanished INSTANTLY (no exit animation) while the card popped in — no "AI thinking" beat; (2) auto-scroll ran scrollIntoView({behavior:"smooth"}) on EVERY streamed token — smooth scroll restarting constantly = jitter; (3) card cascades mixed easeOut + Apple ease with rushed timings
+- route.ts: built the cinematic timeline for quick queries — sleep(700) thinking beat (dots pulse + memoji talks) → emit tool event (card begins grand entrance) → sleep(350) → start model stream (text types below) — a layered reveal; verified via curl timestamps: tool at ~0.7s, first text token at ~1.7s
+- chat-view.tsx: loading dots wrapped in AnimatePresence with exit (opacity 0, y -12, 0.35s Apple ease) — dissolve instead of instant vanish; turn container now y:32/0.65s Apple ease; text bubble gets its own entrance (opacity/y 14, 0.45s Apple ease) on first token
+- chat-view.tsx scroll overhaul: stickToBottom ref pattern (mainRef + onScroll; if user scrolls >140px up, stop following until new turn); card entrances glide (smooth scrollTo), streamed tokens PIN bottom instantly (scrollTop assignment) — ChatGPT-style, zero jitter; new turn resets following; dead bottomRef removed
+- chat-view.tsx: footer quick buttons reduced 46px → 38px (py-3 → py-2, min-w 100→96, gap-3→2.5, icon 18→17); in-chat landing grid max-w 140→124, py-6→py-4, icon 22→20
+- tool-cards.tsx: added shared APPLE_EASE constant; unified + slowed all 5 cascades — PresentationCard: avatar 0.9s scale-up, name y:24 delay 0.25 (0.7s), bio delay 0.45, chips per-chip pop (delayChildren 0.65, stagger 0.07, scale 0.8→1), facts delay 0.9+i*0.09 (total ~2s); SkillsCard: container 0.7s scale, title entrance y:24 delay 0.1, categories stagger 0.12 y:24 0.6s, chips scale 0.85→1 stagger 0.05; ProjectsCard: title y:24 0.6s, carousel cards y:28 delay 0.15+0.12*idx 0.6s Apple; ContactCard: outer y:36 0.7s, inner delay 0.15, email delay 0.45, socials per-button stagger (delayChildren 0.6, stagger 0.06, y:12); FunCard: title delay 0.05, photo scale 0.94→1 0.9s delay 0.25, text delay 0.7, YouTube delay 0.95
+- Fixed discovered overlap bug: Fastfolio floating CTA (fixed top-6 left-6, ends x=258) fully covered the Back button (x=16) on md+ screens — agent-browser literally couldn't click it; header row now md:pl-72 so back button sits at x=304, clear of the pill (reference has no back button in chat; mobile unaffected)
+- E2E verified with agent-browser + video: thinking beat confirmed (memoji on stage + dots pulsing + question bubble ~700ms), then card cascade + text typing; avatar COMPLETELY gone when content loads (all 5 turns); every click = new chat (old content replaced); all 5 buttons sequence Me→Projects→Skills→Fun→Contact works; back button clickable; console clean; eslint + tsc clean for changed files
+
+Stage Summary:
+- Cinematic sequence per button click: question + talking memoji + pulsing dots (~0.7s) → card rises in with slow layered Apple-ease cascade (~2s, per-element staggers) → text types below like an AI responding — nothing appears all at once
+- Scroll is now jitter-free: smooth glide on card entrance, instant pin during token streaming, respects user scrolling up
+- Quick buttons slimmed 46→38px as requested ("slight not lot")
+- Videos: scripts/cinematic_v2.webm (full 5-button sequence), scripts/cinematic_final.webm (final Me flow); screenshots: scripts/e2e_thinking_beat.png, e2e_projects_thinking.png, e2e_fun_mid_entrance.png, e2e_final_me.png
