@@ -16,8 +16,8 @@ import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 /*  • The moment the cursor enters CONTENT — any box, element or       */
 /*    text anywhere on the page — the circle springs open into an      */
 /*    80px magnifying glass that merges with the cursor and shows a    */
-/*    ~1.7x magnified, pixel-identical clone of whatever it hovers     */
-/*    over, like inspecting the page through a loupe.                  */
+/*    ~1.3x slightly-magnified, pixel-identical clone of whatever it   */
+/*    hovers over, like inspecting the page through a loupe.           */
 /*  • Elements marked [data-lens] (the project showcase) keep their    */
 /*    zone-level lens: hovering anywhere in the zone magnifies the     */
 /*    whole showcase, exactly like the reference video.                */
@@ -25,7 +25,7 @@ import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 
 const LENS_SIZE = 80;
 const RING_SIZE = 38;
-const ZOOM = 1.7;
+const ZOOM = 1.3; // slight magnification — subtle, not aggressive
 const RING_BORDER = 1.25;
 const LENS_BORDER = 2;
 

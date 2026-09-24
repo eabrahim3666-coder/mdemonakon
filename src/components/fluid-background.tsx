@@ -669,20 +669,6 @@ export function FluidBackground() {
       return radius;
     }
 
-    function multipleSplats(amount: number) {
-      for (let i = 0; i < amount; i++) {
-        const color = generateColor();
-        color.r *= 10;
-        color.g *= 10;
-        color.b *= 10;
-        const x = Math.random();
-        const y = Math.random();
-        const dx = 1000 * (Math.random() - 0.5);
-        const dy = 1000 * (Math.random() - 0.5);
-        splat(x, y, dx, dy, [color.r, color.g, color.b]);
-      }
-    }
-
     function HSVtoRGB(h: number, s: number, v: number) {
       let r = 0, g = 0, b = 0;
       const i = Math.floor(h * 6);
@@ -886,11 +872,11 @@ export function FluidBackground() {
     canvas.addEventListener("touchmove", onTouchMove, { passive: true });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
 
-    // kick off
+    // kick off — NO initial splats: the background starts perfectly clean,
+    // no gradient color flash on load. Fluid only appears from pointer moves.
     resizeCanvas();
     const initColor = generateColor();
     mainPointer.color = [initColor.r * 3, initColor.g * 3, initColor.b * 3];
-    multipleSplats(8);
     update();
 
     return () => {

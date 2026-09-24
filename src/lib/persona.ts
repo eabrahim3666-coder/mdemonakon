@@ -7,13 +7,13 @@
  */
 
 export const brand = {
-  name: "Aaaaby",
-  siteTitle: "Toukoum Portfolio",
+  name: "Md. Emon",
+  siteTitle: "Md. Emon Portfolio",
   description:
-    "Interactive portfolio with an AI-powered Memoji that answers questions about me, my skills, and my experience",
-  watermark: "Toukoum", // giant background text on the landing page
-  role: "AI Engineer",
-  greeting: "Hey, I'm Aaaaby \uD83D\uDC4B",
+    "Portfolio of Md. Emon — Software Developer / AI Engineer. Projects, skills and contact.",
+  watermark: "Emon", // giant background text on the landing page
+  role: "Software Developer / AI Engineer",
+  greeting: "Hey, I'm Md. Emon \uD83D\uDC4B",
   email: "raphaelgiraud12@gmail.com",
   resume: "/giraud.pdf",
   socials: [
@@ -27,7 +27,7 @@ export const brand = {
 };
 
 export const presentation = {
-  fullName: "Raphael Giraud",
+  fullName: "Md. Emon",
   subtitle: "Intership Application",
   avatar: "/avatar-raphael.jpg",
   text:

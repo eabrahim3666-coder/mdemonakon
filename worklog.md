@@ -251,3 +251,31 @@ Work Log:
 Stage Summary:
 - The circle now works like the video EVERYWHERE: chases the cursor on empty space, merges + becomes a 1.7x magnifying glass over any content it touches — text, boxes, buttons, images, modals — with the project showcase keeping its zone-level lens
 - Demo: download/universal_lens_demo.webm
+
+---
+Task ID: 11
+Agent: Super Z (main agent)
+Task: Remove AI responses (make data static), reduce lens zoom, remove load gradient flash, add cinematic loading screen with slow content reveal
+
+Work Log:
+- Confirmed button slowness root cause: quick-action buttons -> POST /api/chat -> ZAI.create() LLM streaming + forced 700ms/350ms delays
+- Created src/lib/static-chat.ts: deterministic reply engine (5 quick-action replies, greeting regex, keyword routing, fallback) — zero network
+- Rewired chat-view.tsx sendMessage: no fetch; local cinematic timeline (300ms thinking beat -> card entrance -> 240ms beat -> ~420ms chunked typing). rAF-based sleep (immune to background-tab setTimeout throttling). Turn-token + liveness guards for cancel-safety
+- Memoized ToolCard in tool-cards.tsx (typing ticks no longer re-render the heavy project carousel)
+- Deleted src/app/api/chat/route.ts — zero AI/z-ai-web-dev-sdk references remain in src/
+- lens-cursor.tsx: ZOOM 1.7 -> 1.3 ("slight zoom"), RING_SIZE stays 38
+- fluid-background.tsx: removed multipleSplats(8) initial splats + the function itself — page loads with clean background, fluid only appears from pointer moves
+- Created loading-screen.tsx: full-screen boot ("LOADING" label, "Md. Emon" letter-stagger with blur-in, "Software Developer / AI Engineer" subtitle, progress bar 0->72% (easeOut) -> 240ms stall -> sprint to 100% -> 420ms hold -> curtain slides up with [0.76,0,0.24,1] ease)
+- page.tsx: boot gate — LensCursor live from frame 1, FluidBackground + content mount only after boot; content wrapper fades in (opacity-only, keeps fixed children correct); welcome popup delayed to 1600ms post-boot
+- landing-view.tsx: entrance animations upgraded to blur-focus reveals (hero/memoji/input + button stagger slowed), watermark slow fade
+- persona.ts + layout.tsx: identity switched to Md. Emon (name, greeting, role "Software Developer / AI Engineer", watermark "Emon", metadata/OG/twitter); detailed data left as placeholder for user to organize later
+- E2E (agent-browser, ?lensdebug=1): boot timeline verified via VLM (loading screen texts + 91%/95% progress + clean white bg, no flash); landing shows new identity; Projects click -> card (keyword routing works); free-text "hello there!" -> greeting; "what's your tech stack?" -> Skills card; "what is the meaning of life" -> fallback; back button -> landing -> Me card (Md. Emon); lens host transform verified matrix(1.3); network requests: ZERO api calls; console errors: none
+- Discovered headless env throttles setTimeout to ~667ms/call (3x100ms = 2005ms) — switched all waits to rAF-based
+- Recorded demo: download/static_fast_demo.webm (32.5s, 30fps)
+
+Stage Summary:
+- Buttons now respond from static data: card visible ~1s, full reply ~1.5-2s on a real machine (was 3-8s via AI streaming)
+- AI completely removed (route deleted, no z-ai-web-dev-sdk usage in src)
+- Lens zoom 1.3x (slight), gradient load flash gone
+- Cinematic boot: Loading screen (Md. Emon / Software Developer or AI Engineer) -> progress bar -> curtain lift -> slow staggered blur-focus content reveal
+- Site identity: Md. Emon; all deeper persona data (projects/skills/contact/fun) intentionally left as organized static placeholder files for the user to edit later

@@ -39,7 +39,9 @@ export function LandingView({ onAsk }: LandingViewProps) {
       dismissed = true; // private mode — don't nag
     }
     if (!dismissed) {
-      const t = setTimeout(() => setShowWelcome(true), 0);
+      /* After the cinematic boot reveal finishes, so the popup never
+         competes with the loading-screen exit + content entrance */
+      const t = setTimeout(() => setShowWelcome(true), 1600);
       return () => clearTimeout(t);
     }
   }, []);
@@ -64,21 +66,24 @@ export function LandingView({ onAsk }: LandingViewProps) {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pb-10 md:pb-20">
-      {/* Giant watermark */}
+      {/* Giant watermark — fades in slowly behind everything */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center overflow-hidden">
-        <div
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 1.6, ease: [0.19, 1, 0.22, 1] }}
           className="hidden bg-gradient-to-b from-neutral-500/10 to-neutral-500/0 bg-clip-text text-[10rem] leading-none font-black text-transparent select-none sm:block lg:text-[16rem]"
           style={{ marginBottom: "-2.5rem" }}
         >
           {brand.watermark}
-        </div>
+        </motion.div>
       </div>
 
-      {/* Hero */}
+      {/* Hero — drifts down INTO FOCUS after the curtain lifts */}
       <motion.div
-        initial={{ opacity: 0, y: -60 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+        initial={{ opacity: 0, y: -60, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ delay: 0.3, duration: 0.9, ease: [0.19, 1, 0.22, 1] }}
         className="z-1 mt-24 mb-8 flex flex-col items-center text-center md:mt-4 md:mb-12"
       >
         <div className="z-100">
@@ -106,11 +111,11 @@ export function LandingView({ onAsk }: LandingViewProps) {
         <h1 className="text-4xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">{brand.role}</h1>
       </motion.div>
 
-      {/* Memoji */}
+      {/* Memoji — scales up out of blur */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.4, duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+        initial={{ opacity: 0, scale: 0.9, filter: "blur(6px)" }}
+        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+        transition={{ delay: 0.55, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
         className="relative z-10 h-52 w-48 overflow-hidden sm:h-72 sm:w-72"
       >
         <Image
@@ -126,11 +131,11 @@ export function LandingView({ onAsk }: LandingViewProps) {
         />
       </motion.div>
 
-      {/* Ask input + quick actions */}
+      {/* Ask input + quick actions — rises into focus last */}
       <motion.div
-        initial={{ opacity: 0, y: 80 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+        initial={{ opacity: 0, y: 80, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ delay: 0.8, duration: 0.85, ease: [0.19, 1, 0.22, 1] }}
         className="z-10 mt-4 flex w-full flex-col items-center justify-center md:px-0"
       >
         <form className="relative w-full max-w-lg" onSubmit={submit}>
@@ -160,7 +165,7 @@ export function LandingView({ onAsk }: LandingViewProps) {
               key={action.label}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.75 + idx * 0.07, duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+              transition={{ delay: 0.95 + idx * 0.08, duration: 0.55, ease: [0.19, 1, 0.22, 1] }}
               whileTap={{ scale: 0.95 }}
               data-slot="button"
               className="border-border hover:bg-border/30 bg-card/30 h-[84px] w-full cursor-pointer rounded-2xl border shadow-none backdrop-blur-lg"

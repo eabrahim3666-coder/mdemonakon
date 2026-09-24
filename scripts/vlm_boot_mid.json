@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1) **Yes**, a full-screen loading screen is visible. \n   - Small uppercase label: **\"LOADING\"**\n   - Big bold name: **\"Md. Emon\"**\n   - Subtitle under it: **\"Software Developer / AI Engineer\"**\n\n2) The percentage number shown is **91%**. The thin horizontal bar is almost completely full, with only a small gap remaining at the right end.\n\n3) The background is a **clean solid white**.\n\n4) (N/A, as a loading screen is present).",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1790270548,
+  "id": "20260925012225af7db3bef36b4e71",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260925012225af7db3bef36b4e71",
+  "usage": {
+    "completion_tokens": 114,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1773,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1887
+  }
+}

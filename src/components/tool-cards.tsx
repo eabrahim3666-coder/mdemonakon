@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useId, memo, useRef, useState } from "react";
 import type { ReactNode, RefObject, SVGProps } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -799,7 +799,10 @@ export function FunCard() {
 
 export type ToolName = "projects" | "skills" | "presentation" | "fun" | "contact";
 
-export function ToolCard({ name }: { name: ToolName }) {
+/* Memoized: the parent re-renders on every typing tick — the heavy
+   cards (carousel, images) must not re-render with it. Their props
+   (`name`) never change for a given turn, so memo skips them entirely. */
+export const ToolCard = memo(function ToolCard({ name }: { name: ToolName }) {
   switch (name) {
     case "projects":
       return <ProjectsCard />;
@@ -814,6 +817,6 @@ export function ToolCard({ name }: { name: ToolName }) {
     default:
       return null;
   }
-}
+});
 
 export const toolIcons = { Briefcase, Layers, PartyPopper, UserRoundSearch, Laugh };

@@ -10,25 +10,25 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Toukoum Portfolio",
+  title: "Md. Emon — Software Developer / AI Engineer",
   description:
-    "Interactive portfolio with an AI-powered Memoji that answers questions about me, my skills, and my experience",
-  keywords: ["Portfolio", "Developer", "AI", "Interactive", "Memoji", "Web Development", "Full Stack", "Next.js", "React"],
+    "Portfolio of Md. Emon — Software Developer / AI Engineer. Explore projects, skills and ways to get in touch.",
+  keywords: ["Portfolio", "Md. Emon", "Developer", "AI Engineer", "Interactive", "Web Development", "Full Stack", "Next.js", "React"],
   icons: {
     icon: "/favicon.svg",
     apple: "/apple-touch-icon.svg",
   },
   openGraph: {
-    title: "Toukoum Portfolio",
-    description: "Interactive portfolio with an AI-powered Memoji that answers questions about me",
-    siteName: "Toukoum Portfolio",
+    title: "Md. Emon — Software Developer / AI Engineer",
+    description: "Portfolio of Md. Emon — Software Developer / AI Engineer",
+    siteName: "Md. Emon Portfolio",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Toukoum Portfolio",
-    description: "Interactive portfolio with an AI-powered Memoji that answers questions about me",
+    title: "Md. Emon — Software Developer / AI Engineer",
+    description: "Portfolio of Md. Emon — Software Developer / AI Engineer",
   },
 };
 

@@ -14,6 +14,7 @@ import {
   UserRoundSearch,
 } from "lucide-react";
 import { ToolCard, type ToolName } from "@/components/tool-cards";
+import { resolveStaticReply } from "@/lib/static-chat";
 
 interface ChatMsg {
   role: "user" | "assistant";
@@ -52,6 +53,32 @@ const quickQueries: Record<string, string> = {
 
 /* Apple-style ease curve used across the reference site */
 const APPLE_EASE = [0.19, 1, 0.22, 1] as const;
+
+/* ------------------------------------------------------------------ */
+/* STATIC responses — no AI, no network, no waiting.                  */
+/* The reply resolves instantly from src/lib/static-chat.ts; this      */
+/* timeline only stages the reveal so it still feels alive: a short   */
+/* thinking beat (dots pulse + memoji talks), the card entrance,      */
+/* then the text types in fast (~480ms). Click-to-full-answer   */
+/* is roughly one second.                                             */
+/* ------------------------------------------------------------------ */
+const THINK_MS = 300; // loading-dots beat while the "avatar thinks"
+const CARD_MS = 240;  // beat between the card entrance and the text
+const TYPE_MS = 420;  // total time the text takes to type in
+const TYPE_STEPS = 9; // state updates while typing (fewer renders = snappy)
+
+/* rAF-based sleep — immune to background-tab setTimeout throttling and
+   aligned with the display's frame clock, so the typing cadence is
+   identical on every machine. */
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => {
+    const start = performance.now();
+    const check = () => {
+      if (performance.now() - start >= ms) resolve();
+      else requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+  });
 
 /* The quick-questions row above the chat input, with show/hide toggle */
 function QuickQuestions({
@@ -109,6 +136,16 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
      so a stale `isStreaming` closure could theoretically allow overlapping
      sends. The ref flips immediately, making double-sends impossible. */
   const streamingRef = useRef(false);
+  /* Turn token + liveness guard: cancels the local typing loop when a
+     newer turn starts or the view unmounts (user pressed back). */
+  const turnIdRef = useRef(0);
+  const aliveRef = useRef(true);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => {
+      aliveRef.current = false;
+    };
+  }, []);
   /* Bottom-following scroll: while the AI streams we PIN the viewport to
      the bottom (instant, ChatGPT-style) instead of restarting a smooth
      scroll on every token — that restart was the "unstable" jitter.
@@ -122,95 +159,59 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
       const question = text.trim();
       if (!question || streamingRef.current) return;
       streamingRef.current = true;
+      const myTurn = ++turnIdRef.current;
+      const isCurrent = () => turnIdRef.current === myTurn && aliveRef.current;
 
-      const historyMsgs = [...conversation, { role: "user" as const, content: question }];
-      setConversation((prev) => [...prev, { role: "user", content: question }, { role: "assistant", content: "" }]);
+      setConversation((prev) => [
+        ...prev,
+        { role: "user", content: question },
+        { role: "assistant", content: "" },
+      ]);
       setInput("");
       setIsStreaming(true);
 
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: historyMsgs.map((m) => ({ role: m.role, content: m.content })),
-          }),
-        });
-        if (!res.ok || !res.body) throw new Error(`Request failed: ${res.status}`);
+      /* Deterministic, instant — the entire reply is decided here */
+      const reply = resolveStaticReply(question);
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed) continue;
-            let evt: { type: string; value?: string; name?: string };
-            try {
-              evt = JSON.parse(trimmed);
-            } catch {
-              continue;
-            }
-            if (evt.type === "text" && evt.value) {
-              lastWasTool.current = false;
-              setConversation((prev) => {
-                const next = [...prev];
-                const last = next[next.length - 1];
-                if (last && last.role === "assistant") {
-                  next[next.length - 1] = { ...last, content: last.content + evt.value };
-                }
-                return next;
-              });
-            } else if (evt.type === "tool" && evt.name) {
-              lastWasTool.current = true;
-              setConversation((prev) => {
-                const next = [...prev];
-                const last = next[next.length - 1];
-                if (last && last.role === "assistant" && !(last.tools ?? []).includes(evt.name as ToolName)) {
-                  next[next.length - 1] = {
-                    ...last,
-                    tools: [...(last.tools ?? []), evt.name as ToolName],
-                  };
-                }
-                return next;
-              });
-            } else if (evt.type === "error" && evt.value) {
-              setConversation((prev) => {
-                const next = [...prev];
-                const last = next[next.length - 1];
-                if (last && last.role === "assistant") {
-                  next[next.length - 1] = { ...last, content: evt.value!, error: true };
-                }
-                return next;
-              });
-            }
-          }
-        }
-      } catch {
+      const patchLast = (fn: (last: ChatMsg) => ChatMsg) => {
         setConversation((prev) => {
           const next = [...prev];
           const last = next[next.length - 1];
-          if (last && last.role === "assistant") {
-            next[next.length - 1] = {
-              ...last,
-              content: "Sorry, my brain glitched! Can you try asking again?",
-              error: true,
-            };
-          }
+          if (last && last.role === "assistant") next[next.length - 1] = fn(last);
           return next;
         });
+      };
+
+      try {
+        /* 1) Thinking beat — the dots pulse and the memoji talks */
+        await sleep(THINK_MS);
+        if (!isCurrent()) return;
+
+        /* 2) Card entrance — same grand reveal as before */
+        if (reply.tools.length > 0) {
+          lastWasTool.current = true;
+          patchLast((last) => ({
+            ...last,
+            tools: [...(last.tools ?? []), ...reply.tools],
+          }));
+          await sleep(CARD_MS);
+          if (!isCurrent()) return;
+        }
+
+        /* 3) Type the text — fast word-chunks, few renders, cancel-safe */
+        const steps = Math.max(5, Math.min(TYPE_STEPS, Math.ceil(reply.text.length / 16)));
+        for (let s = 1; s <= steps; s++) {
+          await sleep(TYPE_MS / steps);
+          if (!isCurrent()) return;
+          const soFar = reply.text.slice(0, Math.ceil((reply.text.length * s) / steps));
+          patchLast((last) => ({ ...last, content: soFar }));
+        }
       } finally {
         streamingRef.current = false;
         setIsStreaming(false);
       }
     },
-    [conversation, setConversation]
+    [setConversation]
   );
 
   /* ---------------------------------------------------------------- */
