@@ -27,7 +27,7 @@ const R_PRESENTATION: StaticReply = {
 
 const R_PROJECTS: StaticReply = {
   tools: ["projects"],
-  text: "Here's what I've been building! 🚀 Swipe through the showcase above — tap any project to open the full details with images, tech stack and links.",
+  text: "I love turning ideas into real, working software. From AI-powered applications and SaaS platforms to backend systems, automation tools, and full-stack products, most of my projects start with a problem and end with something I can actually build, test, and use.\n\nI\u2019m particularly interested in backend engineering, AI, APIs, automation, and building systems that connect everything together. Each project is an opportunity to explore new technology, solve a different problem, and push my development skills further. Here are some of the things I\u2019ve built along the way.",
 };
 
 const R_SKILLS: StaticReply = {

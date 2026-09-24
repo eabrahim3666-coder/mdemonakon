@@ -422,3 +422,16 @@ Work Log:
 Stage Summary:
 - Me card shows 23 years old + 8 tags: AI, Developer, SaaS Builder, Node.js, Next.js, Backend, APIs, TypeScript
 - Screenshot: scripts/age-tags-me.png
+
+---
+Task ID: 8
+Agent: Super Z (main agent)
+Task: Replace Projects chat brief with user's new text
+
+Work Log:
+- static-chat.ts R_PROJECTS: replaced "Here's what I've been building! 🚀..." with the user's two-paragraph project brief (turning ideas into working software / backend+AI+APIs+automation interests), \n\n paragraph break, curly apostrophes preserved
+- Verified in browser: new text renders in full (570 chars, 2 paragraphs), old text gone, console clean
+
+Stage Summary:
+- Projects section now opens with the user's personal build philosophy brief instead of the generic swipe hint
+- Screenshot: scripts/projects-brief.png
