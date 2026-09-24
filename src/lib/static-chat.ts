@@ -21,7 +21,8 @@ export interface StaticReply {
 
 const R_PRESENTATION: StaticReply = {
   tools: ["presentation"],
-  text: "Hey, that's me! 👋 Everything about who I am is in the card just above — quick facts included. Anything specific you want to dig into?",
+  /* No chat text — the card above speaks for itself */
+  text: "",
 };
 
 const R_PROJECTS: StaticReply = {

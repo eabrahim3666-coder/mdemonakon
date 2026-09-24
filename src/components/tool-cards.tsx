@@ -12,8 +12,6 @@ import {
   Laugh,
   ChevronRight,
   Mail,
-  MapPin,
-  GraduationCap,
   Sparkles,
   Youtube,
   X,
@@ -513,16 +511,15 @@ export function PresentationCard() {
       transition={{ duration: 0.4 }}
       className="mx-auto w-full max-w-5xl py-6 font-sans"
     >
-      <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
-        {/* Avatar column — clean squircle portrait, flat (no shadow,
-            no offset halo) */}
+      <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-14">
+        {/* Avatar column — minimal neutral portrait, flat */}
         <div className="relative mx-auto aspect-[4/5] w-full max-w-[300px] sm:max-w-[340px]">
-          {/* The squircle portrait — soft misty gradient with the bust */}
+          {/* The squircle portrait — quiet neutral gradient */}
           <motion.div
             initial={{ scale: 0.92, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.9, ease: APPLE_EASE }}
-            className="relative h-full w-full overflow-hidden rounded-[2.5rem] bg-gradient-to-b from-[#F3F7FF] via-[#E9F0FC] to-[#DCE8FA]"
+            className="relative h-full w-full overflow-hidden rounded-[2.5rem] bg-gradient-to-b from-[#FAFAFB] to-[#EFEFF2]"
           >
             <Image
               src={presentation.avatar}
@@ -535,18 +532,15 @@ export function PresentationCard() {
             />
           </motion.div>
 
-          {/* Status chip — small badge anchored bottom-right of the portrait */}
+          {/* Status — quiet black badge anchored bottom-right */}
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.5, ease: APPLE_EASE, delay: 0.55 }}
-            className="absolute -right-2 bottom-6 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 backdrop-blur-md"
+            className="absolute -right-2 bottom-6 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5"
           >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0171E3] opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0171E3]" />
-            </span>
-            <span className="text-xs font-semibold text-[#0A2A6B]">Open to work</span>
+            <span className="h-2 w-2 rounded-full bg-neutral-900" />
+            <span className="text-xs font-medium text-neutral-900">Open to work</span>
           </motion.div>
         </div>
 
@@ -560,7 +554,7 @@ export function PresentationCard() {
               visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: APPLE_EASE, delay: 0.25 } },
             }}
           >
-            <h1 className="from-foreground to-muted-foreground bg-gradient-to-r bg-clip-text text-xl font-semibold text-transparent md:text-3xl">
+            <h1 className="text-foreground text-xl font-semibold tracking-tight md:text-3xl">
               {presentation.fullName}
             </h1>
             <div className="mt-1 flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
@@ -589,7 +583,7 @@ export function PresentationCard() {
               hidden: { opacity: 0 },
               visible: { opacity: 1, transition: { delayChildren: 0.65, staggerChildren: 0.07 } },
             }}
-            className="mt-4 flex flex-wrap gap-2"
+            className="mt-6 flex flex-wrap gap-2"
           >
             {presentation.chips.map((chip) => (
               <motion.span
@@ -598,7 +592,7 @@ export function PresentationCard() {
                   hidden: { opacity: 0, scale: 0.8, y: 8 },
                   visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: APPLE_EASE } },
                 }}
-                className="bg-secondary text-secondary-foreground rounded-full px-3 py-1 text-sm"
+                className="text-muted-foreground rounded-full border border-border px-3 py-1 text-sm"
               >
                 {chip}
               </motion.span>
@@ -607,48 +601,37 @@ export function PresentationCard() {
         </div>
       </div>
 
-      {/* The rest of the story — full-width section under the photo/text
-          grid, closing with the signature line in deep-blue gradient */}
+      {/* The rest of the story — clean section under the grid, closing
+          with the signature line as plain body text */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.55, duration: 0.7, ease: APPLE_EASE }}
-        className="mt-10"
+        className="mt-12 border-t border-border pt-8"
       >
-        <p className="text-foreground mx-auto max-w-3xl text-center leading-relaxed">
+        <p className="text-foreground max-w-2xl leading-relaxed">
           {presentation.moreText}
         </p>
-        <p className="mt-6 bg-gradient-to-r from-[#0A2A6B] via-[#1D4ED8] to-[#0171E3] bg-clip-text text-center text-2xl font-bold text-transparent md:text-3xl">
+        <p className="text-foreground mt-5 max-w-2xl leading-relaxed">
           {presentation.punchline}
         </p>
       </motion.div>
 
-      {/* Fact sheet — final wave of the cinematic cascade */}
-      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {presentation.facts.map((f, i) => {
-          const icons = {
-            "Based in": MapPin,
-            "Studied at": GraduationCap,
-            Focus: Sparkles,
-            "Open to": Briefcase,
-          };
-          const Icon = icons[f.label as keyof typeof icons] ?? Sparkles;
-          return (
-            <motion.div
-              key={f.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 + i * 0.09, duration: 0.5, ease: APPLE_EASE }}
-              className="bg-accent flex items-start gap-3 rounded-2xl p-4"
-            >
-              <Icon className="text-foreground mt-0.5 h-5 w-5" />
-              <div>
-                <p className="text-foreground text-sm font-medium">{f.label}</p>
-                <p className="text-muted-foreground text-sm">{f.value}</p>
-              </div>
-            </motion.div>
-          );
-        })}
+      {/* Fact sheet — quiet spec strip */}
+      <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-border pt-8 lg:grid-cols-4">
+        {presentation.facts.map((f, i) => (
+          <motion.div
+            key={f.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 + i * 0.08, duration: 0.5, ease: APPLE_EASE }}
+          >
+            <p className="text-muted-foreground text-[11px] font-medium tracking-widest uppercase">
+              {f.label}
+            </p>
+            <p className="text-foreground mt-1.5 text-sm font-medium">{f.value}</p>
+          </motion.div>
+        ))}
       </div>
     </motion.div>
   );
