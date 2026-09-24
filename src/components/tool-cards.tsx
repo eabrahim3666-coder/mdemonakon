@@ -518,26 +518,50 @@ export function PresentationCard() {
       className="mx-auto w-full max-w-5xl py-6 font-sans"
     >
       <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
-        {/* Avatar column — transparent cutout floats on a soft
-            gradient backdrop; slow cinematic scale-up */}
-        <div className="relative mx-auto aspect-square w-full max-w-xs sm:max-w-sm">
-          <div className="relative h-full w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#F7F7F9] via-[#F1F1F4] to-[#E7E7EC]">
-            <motion.div
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.9, ease: APPLE_EASE }}
-              className="h-full w-full"
-            >
-              <Image
-                src={presentation.avatar}
-                alt={presentation.fullName}
-                width={500}
-                height={500}
-                className="h-full w-full object-contain p-5 drop-shadow-[0_14px_24px_rgba(0,0,0,0.14)]"
-                unoptimized
-              />
-            </motion.div>
-          </div>
+        {/* Avatar column — editorial ARCH portrait: the bust floats on a
+            misty blue gradient inside a rounded-top arch, with a deep-blue
+            gradient arch ring offset behind for layered depth */}
+        <div className="relative mx-auto aspect-[4/5] w-full max-w-[300px] sm:max-w-[340px]">
+          {/* Deep blue gradient arch — offset behind (the halo layer) */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, ease: APPLE_EASE, delay: 0.1 }}
+            aria-hidden
+            className="absolute inset-0 translate-x-3 translate-y-4 rounded-t-full rounded-b-[2rem] bg-gradient-to-br from-[#0A2A6B] via-[#1D4ED8] to-[#0171E3] opacity-90"
+          />
+
+          {/* The arch portrait — soft misty gradient with the cutout bust */}
+          <motion.div
+            initial={{ scale: 0.92, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.9, ease: APPLE_EASE }}
+            className="relative h-full w-full overflow-hidden rounded-t-full rounded-b-[2rem] bg-gradient-to-b from-[#F3F7FF] via-[#E9F0FC] to-[#DCE8FA] shadow-[0_24px_48px_-18px_rgba(10,42,107,0.35)]"
+          >
+            <Image
+              src={presentation.avatar}
+              alt={presentation.fullName}
+              width={451}
+              height={536}
+              priority
+              className="h-full w-full object-cover object-top drop-shadow-[0_18px_28px_rgba(10,42,107,0.28)]"
+              unoptimized
+            />
+          </motion.div>
+
+          {/* Status chip — small badge anchored bottom-right of the arch */}
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5, ease: APPLE_EASE, delay: 0.55 }}
+            className="absolute -right-2 bottom-6 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 shadow-lg backdrop-blur-md"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0171E3] opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0171E3]" />
+            </span>
+            <span className="text-xs font-semibold text-[#0A2A6B]">Open to work</span>
+          </motion.div>
         </div>
 
         {/* Text column — staggered reveal */}
