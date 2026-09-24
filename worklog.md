@@ -279,3 +279,32 @@ Stage Summary:
 - Lens zoom 1.3x (slight), gradient load flash gone
 - Cinematic boot: Loading screen (Md. Emon / Software Developer or AI Engineer) -> progress bar -> curtain lift -> slow staggered blur-focus content reveal
 - Site identity: Md. Emon; all deeper persona data (projects/skills/contact/fun) intentionally left as organized static placeholder files for the user to edit later
+
+---
+Task ID: 13
+Agent: Super Z (main agent)
+Task: Replace memoji/avatar-raphael with the user's own face as the avatar, background made transparent (image from Google Drive link after pasted-image upload failed)
+
+Work Log:
+- User's pasted image (pasted_image_1790271768058.png) never reached the filesystem (recurring IM paste failure); user supplied Google Drive link instead: file 1yZAet5kZuH4yaYIoZO_4xhw3DNHC7ywk
+- Downloaded via drive.usercontent.google.com → upload/emon_avatar_source (PNG 1332x1181 RGB)
+- Built scripts/remove_bg.py — full avatar cutout pipeline:
+  * rembg u2net_human_seg (176MB model downloaded + warmed) with post_process_mask
+  * alpha_cleanup(): kill speckle <12%, solidify >60%, feather band between
+  * GaussianBlur(0.8) on alpha for soft hair edges
+  * crop_with_subject(): bbox of alpha>0.25 + 6% padding
+  * fade_bottom(): bottom 10% of cropped matte ramps 1→0 — dissolves the hard photo cut for the "floating bust" look (applied AFTER crop so it hits the subject's own bottom edge)
+  * downscale to max 1000px side
+- Generated public/avatar-face.png (789x1000 RGBA, 740KB) from the user's drive image — a 3D-style avatar face
+- Wired the avatar into all three spots:
+  * landing-view.tsx hero: memoji → avatar-face.png (h-56/sm:h-72/md:h-96 w-auto object-contain + drop-shadow), blur-in entrance kept
+  * chat-view.tsx stage: talking memoji video → avatar-face.png in portrait box (h-36 w-28 … md:h-44 md:w-36) with a gentle talking bob while "thinking" (scale [1,1.045,1] + y [0,-4,0], 1.05s loop); videoRef/memoji useEffect removed
+  * persona.ts presentation.avatar → /avatar-face.png; tool-cards.tsx Me card: object-cover → object-contain p-5 over a soft #F7F7F9→#E7E7EC gradient rounded frame
+- VLM-verified all three spots: landing face blends into white bg (no photo box), bottom fades softly, no distortion; chat stage cleanly cut out; Me card floats on gradient
+- Fixed transient syntax error (stray } in a comment edit); tsc + eslint clean; console/page errors clean after clear+reload (stale HMR history)
+- Demo recorded: download/avatar_face_demo.webm (fluid canvas hidden during recording, restored after)
+
+Stage Summary:
+- The user's own face is now the site avatar everywhere: landing hero (floating transparent cutout), chat thinking stage (bobbing), Me card (gradient frame)
+- One-command swap for future photos: python3 scripts/remove_bg.py <photo> public/avatar-face.png
+- Source preserved: upload/emon_avatar_source

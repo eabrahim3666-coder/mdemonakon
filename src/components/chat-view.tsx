@@ -312,13 +312,13 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                     ? { duration: 1.05, repeat: Infinity, ease: "easeInOut" }
                     : { duration: 0.35, ease: APPLE_EASE }
                 }
-                className="h-32 w-28 sm:h-36 sm:w-32 md:h-40 md:w-36"
+                className="h-36 w-28 sm:h-40 sm:w-32 md:h-44 md:w-36"
               >
                 <Image
                   src="/avatar-face.png"
                   alt="Avatar"
-                  width={1000}
-                  height={790}
+                  width={789}
+                  height={1000}
                   className="h-full w-full object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.16)]"
                   style={{ color: "transparent" }}
                   unoptimized

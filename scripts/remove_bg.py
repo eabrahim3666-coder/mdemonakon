@@ -98,18 +98,18 @@ def process(input_path: str, output_path: str, preview_path: str | None = None):
     a_img = a_img.filter(ImageFilter.GaussianBlur(0.8))
     alpha_final = np.array(a_img).astype(np.float32) / 255.0
 
-    # Bottom fade-out — dissolve the hard photo cut for a floating bust.
-    # NOTE: crop on the PRE-fade matte so the fade ramp survives the crop.
-    alpha_for_crop = alpha_final
-    alpha_faded = fade_bottom(alpha_final)
-
-    out_arr = arr.copy()
-    out_arr[:, :, 3] = (alpha_faded * 255).astype(np.uint8)
-
-    # Crop to subject
+    # Apply clean alpha, then crop to the subject's bbox
     print("[4/4] Cropping to subject + saving…")
+    out_arr = arr.copy()
+    out_arr[:, :, 3] = (alpha_final * 255).astype(np.uint8)
     out = Image.fromarray(out_arr, "RGBA")
-    out = crop_with_subject(out, alpha_for_crop)
+    out = crop_with_subject(out, alpha_final)
+
+    # Bottom fade-out AFTER cropping — dissolves the hard photo cut at the
+    # subject's own bottom edge for the "floating bust" look
+    faded = np.array(out)
+    faded[:, :, 3] = (fade_bottom(faded[:, :, 3].astype(np.float32) / 255.0) * 255).astype(np.uint8)
+    out = Image.fromarray(faded, "RGBA")
 
     # Downscale if huge (avatar slots render at <= ~576 logical px; 1000px
     # covers 2x DPR everywhere while keeping the PNG light)

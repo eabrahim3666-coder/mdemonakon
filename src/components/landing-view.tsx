@@ -120,11 +120,11 @@ export function LandingView({ onAsk }: LandingViewProps) {
       >
         <Image
           alt={`${brand.name} — avatar`}
-          width={1000}
-          height={790}
+          width={789}
+          height={1000}
           decoding="async"
           priority
-          className="h-52 w-auto object-contain drop-shadow-[0_24px_36px_rgba(0,0,0,0.20)] sm:h-72 md:h-80"
+          className="h-56 w-auto object-contain drop-shadow-[0_24px_36px_rgba(0,0,0,0.20)] sm:h-72 md:h-96"
           style={{ color: "transparent" }}
           src="/avatar-face.png"
           unoptimized
