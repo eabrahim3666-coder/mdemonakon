@@ -24,3 +24,27 @@ Stage Summary:
 - It is a customization of the Fastfolio AI-portfolio template (fastfol.io)
 - Screenshots saved: scripts/site_home.png, scripts/site_chat.png, scripts/chat_answer.png
 - Awaiting user's next instruction; video attachment missing
+
+---
+Task ID: 2
+Agent: Super Z (main agent)
+Task: Clone aaabadcode.com as a Next.js portfolio website (landing page + chat functionality + streaming backend)
+
+Work Log:
+- Loaded fullstack-dev skill, initialized environment (Next.js 16, port 3000 dev server)
+- Extracted complete persona data from original site: 5 AI tools (getPresentation/getProjects/getSkills/getCrazy/getContact), 9 projects with full details, 5 skill categories, contact info, fun facts — via API probing + JS chunk decompilation
+- Downloaded 37 public assets (memoji png/webm, logos, 30 project images) to public/
+- Built src/lib/persona.ts — single rebrand config + all portfolio data
+- Built src/app/api/chat/route.ts — POST streaming endpoint: z-ai-web-dev-sdk (stream:true), system prompt replica (~1400 tokens, casual persona), inline [TOOL:name] tag protocol with cross-chunk buffering, NDJSON output (text/tool/error/finish events), client-disconnect safe
+- Built src/components/fluid-background.tsx — full WebGL fluid simulation port (Pavel Dobryakov engine, original config: SIM_RES 128, DYE_RES 1440, CURL 3, SPLAT_RADIUS .2, transparent mode)
+- Built src/components/landing-view.tsx — hero (logo btn, greeting, title, memoji, ask input, 5 quick buttons with exact icon colors #329696/#3E9858/#856ED9/#B95F9D/#C19433), watermark, Fastfolio CTA, first-visit welcome popup (localStorage)
+- Built src/components/chat-view.tsx — talking memoji video (plays while streaming), user/assistant bubbles, tool cards above text, typing indicator, auto-scroll
+- Built src/components/tool-cards.tsx — projects grid + detail view (tech chips, links, gallery), skills categories, presentation card (live badge), contact card, fun card with lightbox
+- Single-page architecture (landing<->chat view state) per sandbox "/" route rule; Inter font via next/font
+- Fixed: welcome popup hydration (deferred setState), stream controller "already closed" on disconnect, leading whitespace after tool tags, eslint ignores scripts/
+- E2E verified with agent-browser: landing renders (fluid blobs confirmed via VLM), ask flow -> chat, all 5 tool cards render, project detail navigation, back button, mobile viewport 390px, no console errors, lint clean
+
+Stage Summary:
+- Fully working clone at localhost:3000 with identical layout/UX: WebGL fluid bg, AI memoji chat with streaming + generative tool cards, talking avatar video
+- All brand strings centralized in src/lib/persona.ts for easy rebranding
+- Screenshots: scripts/clone_landing.png, clone_chat.png, clone_detail.png, clone_final*.png
