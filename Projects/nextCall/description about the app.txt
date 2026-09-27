@@ -1,0 +1,55 @@
+1️⃣ Small App Description
+
+**NextCall** — "Turn Calls Into Customers" — is an **AI-powered 24/7 call & chat receptionist** for small businesses. It's a virtual front-desk agent that never sleeps and never misses a lead.
+
+When a customer calls, texts, WhatsApps, or DMs your business on Instagram/Facebook, an AI voice/chat agent answers instantly with your business info, tone, and branding. It captures the caller's name, phone, and email, carries on natural conversations, books appointments **directly into Google Calendar**, and smart-routes emergencies to your cellphone. Every interaction gets a one-sentence summary, sentiment, and lead-quality score (hot/warm/cold), stored automatically — no data entry.
+
+Business owners get a real-time dashboard with call logs, analytics (call volume, sentiment donut, peak-hours heatmap, revenue funnel, AI performance score), a live activity feed (Pusher), hot-lead alerts, appointment reminders, daily/weekly email summaries, review-reply automation, and a referral program (bonus minutes). It includes SMS compliance tooling, an emergency call-forwarding phone tree, self-setting Google/WhatsApp/Meta integrations, and a Paddle paywall with free trial → Standard → Premium plans sold in per-minute packages.
+
+Under the hood it even self-heals: a dedicated `lib/recovery/` subsystem (circuit breakers, incident logging, AI guardrails, redaction) monitors failures and an internal admin console (`/admin`) lets the team triage incidents and support chats in real time.
+
+
+
+
+## 2️⃣ Major Tech Stack
+**Core Platform**
+- **Next.js 16** (App Router, `force-dynamic` pages, API routes, cron jobs) + **React 19** + **TypeScript 5**
+- **Tailwind CSS 4** (with PostCSS) + **Radix UI**, **CVA/clsx**, custom design tokens (`lib/tokens/`), **Tailwind Merge**
+
+**Identity & Auth**
+- **Clerk** (`@clerk/nextjs`) — authentication for dashboard/admin
+
+**Data & Storage**
+- **DataStax Astra DB** (`@datastax/astra-db-ts`) — Cassandra-style collections (calls, businesses, conversations, notifications, incidents, SMS opt-outs), with in-memory fallback when unconfigured
+
+**AI & Voice**
+- **OpenAI** — call intelligence: lead scoring, sentiment, emergency detection, natural-language calendar parsing, review reply generation
+- **Retell AI** — the AI voice agent answering phone calls
+- **Twilio** — phone numbers, programmatic number provisioning, SMS + WhatsApp inbound/webhooks
+
+**Realtime**
+- **Pusher Channels** — live activity feed, dashboard chat, admin notifications
+
+**Integrations**
+- **Google Calendar / Gmail APIs** (`googleapis`) — OAuth two-way appointment sync
+- **Meta Graph API** — Instagram & Facebook DM inbound handling
+- **Telegram** — ops alerts & notifications
+- **Zapier / Make / n8n** — webhook automation hub
+
+**Payments**
+- **Paddle** — checkout, webhooks, billing portal, subscription plans + minute packs
+
+**Email**
+- **Resend** — daily/weekly summaries, appointment reminders, follow-ups
+
+**Frontend Experience**
+- **Framer Motion** + **Lenis** (smooth scroll) — cinematic landing scenes, 3D sections, scroll progress
+- **Recharts** — dashboard charts; **Lucide** + **Iconify** icons
+- **Vitest** — unit tests; **GitHub Actions** cron workflows; deployed to **Vercel**
+
+
+
+
+## 3️⃣ Website Links
+| https://getnextcall.com/admin | Internal admin console (support chat, incidents, recovery) |
+| 🔗 github.com/eabrahim3666-coder/nextCall-V2 | Source repo (`origin`) |

@@ -1,0 +1,42 @@
+## 📌 Project Description
+
+**NextCall Prospector** — an internal AI-powered lead generation and business intelligence platform built for **NextCall**, an AI voice receptionist service for local businesses.
+
+The app equips NextCall's sales team with an end-to-end prospecting engine: discover qualified local businesses on an interactive map, enrich their digital footprint, score their fit as customers, and launch automated personalized sales outreach.
+
+**Key features:**
+- 🗺️ **Map-Based Business Discovery** — Search any area/radius on a Leaflet map, pick a niche (Plumbing, HVAC, Roofing, etc.), and pull business leads through 4 pluggable data providers (SerpApi, Apify, TomTom, Geoapify) with smart fallback, quota tracking, and deduplication.
+- 📸 **Create Leads from Screenshot** — Upload a Google Maps listing screenshot and GPT-4o vision extracts name, phone, website, rating, and address automatically.
+- 🕷️ **Website Enrichment** — Priority-aware crawling of each lead's website to extract emails (with confidence scores), phones (E.164 normalized), social profiles, online booking systems, and features like contact forms, live chat, click-to-call, and SSL.
+- 📊 **Digital Presence Audit Engine** — A deterministic scoring engine rate each business 0–100 across 5 weighted categories (Website, Contactability, Booking, Reputation, Social) and maps gaps to NextCall's sales opportunities.
+- 🤖 **AI-Generated Audit Reports** — GPT-4o-mini turns the raw audit into a personalized, customer-journey-focused narrative report (executive summary, strengths, opportunities, recommended next steps), validated with Zod schemas.
+- 📄 **Premium PDF Reports** — A branded multi-page PDF audit report is rendered on the fly and attached directly to the outreach email.
+- 🧲 **Lead Opportunity Scoring** — A dedicated scoring model ranks leads by booking gaps, phone dependency, digital presence, and engagement, feeding a HOT/HIGH priority pipeline.
+- ✉️ **Automated Outreach & Follow-Ups** — Deterministic first emails grounded in the audit data (with the PDF attached) are sent via Resend with open-tracking pixels. A background scheduler automatically sends contextual follow-ups 3 and 7 days after a lead opens an email — AI-drafted, only if the previous email was opened, with idempotency keys and delivery-webhook tracking to prevent duplicates.
+
+---
+
+## 🛠️ Major Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Framework** | Next.js 16 (App Router), React 19, TypeScript 5.9 |
+| **Styling / UI** | Tailwind CSS v4, shadcn/ui components, Lucide icons |
+| **Maps** | Leaflet + react-leaflet (OpenStreetMap) |
+| **AI** | OpenAI GPT-4o-mini (audit reports, follow-up drafting, vision-based screenshot extraction) |
+| **Email** | Resend API + webhooks (delivery/bounce tracking) |
+| **Database** | DataStax Astra DB (serverless NoSQL) with in-memory demo fallback |
+| **Discovery APIs** | SerpApi, Apify, TomTom Search, Geoapify |
+| **PDF Generation** | @react-pdf/renderer |
+| **Crawling** | Cheerio, custom URL validator with SSRF protection |
+| **Validation** | Zod schemas (env vars, API bodies, AI responses) |
+| **Testing** | Vitest (unit + render tests across services) |
+| **Auth & Security** | Password-based auth via Next.js middleware, rate limiting |
+
+---
+
+## 🔗 Links
+
+- **Product Website:** https://audit-next-call.vercel.app/
+- **GitHub Repository:** https://github.com/eabrahim3666-coder/audit_nextCall.git
+- **Internal Dashboard:** `/dashboard` (password-protected; local dev at `localhost:3000`)

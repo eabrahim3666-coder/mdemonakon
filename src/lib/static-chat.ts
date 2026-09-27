@@ -32,12 +32,12 @@ const R_PROJECTS: StaticReply = {
 
 const R_SKILLS: StaticReply = {
   tools: ["skills"],
-  text: "My full arsenal ☝️ — from frontend to AI engineering, plus the soft skills. Want to know more about any of them?",
+  text: "I am a backend developer first 👉 Node.js, realtime systems, event driven architecture, auth, payments and AI integrations, all proven in shipped products. And yes, I can hold my own on the frontend when a product needs a face.",
 };
 
-const R_FUN: StaticReply = {
-  tools: ["fun"],
-  text: "Glad you asked 😄 The craziest one is in the card above — spoiler: it involves a very tall mountain and a lot of wind!",
+const R_FAQ: StaticReply = {
+  tools: ["faq"],
+  text: "Most answers live right here ☝️ — what I build, how I work, rates and availability. If yours isn't covered, email me and you'll hear back within 24 hours.",
 };
 
 const R_CONTACT: StaticReply = {
@@ -52,7 +52,7 @@ const R_GREETING: StaticReply = {
 
 const R_FALLBACK: StaticReply = {
   tools: [],
-  text: "I keep things simple for now 😅 Try the quick buttons below — I can tell you about Me, my Projects, my Skills, some Fun stuff, or how to Contact me!",
+  text: "Hmm, I don't have a pre-written answer for that one yet 😅 Drop me an email at eabrahim3666@gmail.com and I'll answer you personally — or try the quick buttons below.",
 };
 
 /* ------------------------------------------------------------------ */
@@ -66,8 +66,7 @@ const QUICK_REPLIES: Record<string, StaticReply> = {
   "who are you? tell me about yourself": R_PRESENTATION,
   "what are your projects? what are you working on right now?": R_PROJECTS,
   "what are your skills? give me a list of your soft and hard skills.": R_SKILLS,
-  "what's the craziest thing you've ever done? what are your hobbies?": R_FUN,
-  "what's the craziest thing you've ever done? (mb?) what are your hobbies?": R_FUN,
+  "what are your faqs? what do clients usually ask?": R_FAQ,
   "how can i contact you?": R_CONTACT,
 };
 
@@ -86,8 +85,32 @@ const KEYWORD_ROUTES: { keywords: string[]; reply: StaticReply }[] = [
     reply: R_SKILLS,
   },
   {
-    keywords: ["fun", "crazy", "hobby", "hobbies", "mont blanc", "adventure", "mountain", "spare time"],
-    reply: R_FUN,
+    keywords: [
+      "faq",
+      "rate",
+      "price",
+      "cost",
+      "charge",
+      "quote",
+      "budget",
+      "freelance",
+      "contract",
+      "hire",
+      "available",
+      "availability",
+      "how do we start",
+      "get started",
+      "process",
+      "timezone",
+      "time zone",
+      "remote",
+      "alone or",
+      "team",
+      "study",
+      "see your code",
+      "clients ask",
+    ],
+    reply: R_FAQ,
   },
   {
     keywords: ["contact", "email", "reach", "social", "linkedin", "github", "call", "phone"],

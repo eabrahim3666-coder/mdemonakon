@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Laugh, Briefcase, Layers, PartyPopper, UserRoundSearch, ArrowRight, X, Rocket } from "lucide-react";
+import { Laugh, Briefcase, Layers, UserRoundSearch, HelpCircle, ArrowRight, X, Rocket } from "lucide-react";
 import { brand } from "@/lib/persona";
 
 interface LandingViewProps {
@@ -14,7 +14,7 @@ const quickActions = [
   { label: "Me", icon: Laugh, color: "#329696" },
   { label: "Projects", icon: Briefcase, color: "#3E9858" },
   { label: "Skills", icon: Layers, color: "#856ED9" },
-  { label: "Fun", icon: PartyPopper, color: "#B95F9D" },
+  { label: "FAQ", icon: HelpCircle, color: "#B95F9D" },
   { label: "Contact", icon: UserRoundSearch, color: "#C19433" },
 ];
 
@@ -22,7 +22,7 @@ const quickQueries: Record<string, string> = {
   Me: "Who are you? I want to know more about you.",
   Projects: "What are your projects? What are you working on right now?",
   Skills: "What are your skills? Give me a list of your soft and hard skills.",
-  Fun: "What's the craziest thing you've ever done? What are your hobbies?",
+  FAQ: "What are your FAQs? What do clients usually ask?",
   Contact: "How can I contact you?",
 };
 
@@ -66,19 +66,6 @@ export function LandingView({ onAsk }: LandingViewProps) {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pb-10 md:pb-20">
-      {/* Giant watermark — fades in slowly behind everything */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1.6, ease: [0.19, 1, 0.22, 1] }}
-          className="hidden bg-gradient-to-b from-[#0A2A6B]/[0.09] to-[#0A2A6B]/0 bg-clip-text text-[10rem] leading-none font-black text-transparent select-none sm:block lg:text-[16rem]"
-          style={{ marginBottom: "-2.5rem" }}
-        >
-          {brand.watermark}
-        </motion.div>
-      </div>
-
       {/* Hero — drifts down INTO FOCUS after the curtain lifts */}
       <motion.div
         initial={{ opacity: 0, y: -60, filter: "blur(8px)" }}
@@ -86,29 +73,8 @@ export function LandingView({ onAsk }: LandingViewProps) {
         transition={{ delay: 0.3, duration: 0.9, ease: [0.19, 1, 0.22, 1] }}
         className="z-1 mt-24 mb-8 flex flex-col items-center text-center md:mt-4 md:mb-12"
       >
-        <div className="z-100">
-          <button
-            data-slot="button"
-            className="inline-flex h-auto w-auto cursor-pointer items-center justify-center rounded-2xl bg-white/30 p-3 backdrop-blur-lg transition-all hover:bg-white/60 focus-visible:ring-0 focus-visible:bg-transparent focus-visible:ring-offset-0"
-            onClick={() => onAsk("Who are you? Tell me about yourself")}
-            aria-label={`About ${brand.name}`}
-          >
-            <Image
-              alt="Logo"
-              loading="lazy"
-              width={100}
-              height={100}
-              decoding="async"
-              className="w-6 md:w-8"
-              style={{ color: "transparent" }}
-              src="/logo-toukoum.svg"
-              unoptimized
-            />
-            <span className="sr-only">About {brand.name}</span>
-          </button>
-        </div>
-        <h2 className="text-secondary-foreground mt-1 text-xl font-semibold md:text-2xl">{brand.greeting}</h2>
-        <h1 className="bg-gradient-to-r from-[#0A2A6B] via-[#1D4ED8] to-[#0171E3] bg-clip-text text-4xl font-bold text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
+        <h2 className="text-secondary-foreground mt-1 text-2xl font-semibold md:text-3xl">{brand.greeting}</h2>
+        <h1 className="inline-block bg-gradient-to-r from-[#0A2A6B] via-[#1D4ED8] to-[#0171E3] bg-clip-text pb-2 text-2xl font-bold leading-tight text-transparent sm:text-3xl md:text-4xl">
           {brand.role}
         </h1>
       </motion.div>

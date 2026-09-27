@@ -11,8 +11,8 @@ import {
   Laugh,
   Briefcase,
   Layers,
-  PartyPopper,
   UserRoundSearch,
+  HelpCircle,
 } from "lucide-react";
 import { ToolCard, type ToolName } from "@/components/tool-cards";
 import { resolveStaticReply } from "@/lib/static-chat";
@@ -40,7 +40,7 @@ const quickActions = [
   { key: "Me", icon: Laugh, color: "#329696" },
   { key: "Projects", icon: Briefcase, color: "#3E9858" },
   { key: "Skills", icon: Layers, color: "#856ED9" },
-  { key: "Fun", icon: PartyPopper, color: "#B95F9D" },
+  { key: "FAQ", icon: HelpCircle, color: "#B95F9D" },
   { key: "Contact", icon: UserRoundSearch, color: "#C19433" },
 ];
 
@@ -48,7 +48,7 @@ const quickQueries: Record<string, string> = {
   Me: "Who are you? I want to know more about you.",
   Projects: "What are your projects? What are you working on right now?",
   Skills: "What are your skills? Give me a list of your soft and hard skills.",
-  Fun: "What's the craziest thing you've ever done? What are your hobbies?",
+  FAQ: "What are your FAQs? What do clients usually ask?",
   Contact: "How can I contact you?",
 };
 
@@ -244,17 +244,24 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
     lastWasTool.current = false;
   }, [userTurns]);
 
-  // Follow the content as it grows: the card entrance glides down smoothly,
-  // streamed tokens pin the bottom instantly (no smooth-restart jitter).
+  // Follow the content as it grows:
+  // - When a section tool card is loaded (Me, Projects, Skills, FAQ, Contact), always start at top (scrollTop = 0)
+  //   so the user starts reading from the top of the section instead of jumping to the bottom.
+  // - For free-form text-only chat turns, follow the bottom.
   useEffect(() => {
     const el = mainRef.current;
     if (!el || !assistantStarted || !stickToBottom.current) return;
+    const hasToolCard = (currentAssistant?.tools?.length ?? 0) > 0;
+    if (hasToolCard) {
+      el.scrollTop = 0;
+      return;
+    }
     if (lastWasTool.current) {
       el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     } else {
       el.scrollTop = el.scrollHeight;
     }
-  }, [conversation, assistantStarted]);
+  }, [conversation, assistantStarted, currentAssistant]);
 
   // User scrolled up to read → stop yanking them around
   const handleMainScroll = useCallback(() => {
@@ -428,10 +435,10 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
             {assistantStarted && (
               <motion.div
                 key={`turn-${userTurns}`}
-                initial={{ opacity: 0, y: 32 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14, transition: { duration: 0.22, ease: "easeOut" } }}
-                transition={{ duration: 0.65, ease: APPLE_EASE }}
+                initial={{ opacity: 0, y: 28, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -14, filter: "blur(4px)", transition: { duration: 0.22, ease: "easeOut" } }}
+                transition={{ duration: 0.7, ease: APPLE_EASE }}
                 className="flex w-full flex-col px-2 pt-2 pb-4 md:px-4"
               >
                 {currentAssistant?.tools?.map((tool, j) => (
@@ -441,9 +448,9 @@ export function ChatView({ initialQuery, onBack, conversation, setConversation }
                 ))}
                 {currentAssistant?.content ? (
                   <motion.div
-                    initial={{ opacity: 0, y: 14 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, ease: APPLE_EASE }}
+                    initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{ duration: 0.5, ease: APPLE_EASE }}
                     className="w-full"
                   >
                     <div className="rounded-2xl bg-[#ECECF0] px-5 py-3 shadow-sm">

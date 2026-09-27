@@ -30,7 +30,7 @@ const PHASE_C = 620;  // 72%  → 100% (satisfying sprint)
 const DONE_HOLD = 420; // admire 100% before the curtain lifts
 
 const NAME = "Md. Emon";
-const ROLE = "Software Developer / AI Engineer";
+const ROLE = "Node.js Backend Developer";
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -105,7 +105,7 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
 
         {/* Name — each letter staggers into focus (solid deep navy: per-letter
             filter/transform isolation would break a bg-clip-text gradient) */}
-        <h1 className="mt-5 text-5xl font-bold tracking-tight text-[#0A2A6B] sm:text-6xl md:text-7xl">
+        <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#0A2A6B] sm:text-4xl md:text-5xl">
           {NAME.split("").map((ch, i) => (
             <motion.span
               key={`${ch}-${i}`}
@@ -124,7 +124,7 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.7, ease: APPLE_EASE }}
-          className="mt-3 text-sm font-medium text-neutral-500 sm:text-base"
+          className="mt-3 text-[0.6rem] font-medium text-neutral-500 sm:text-sm"
         >
           {ROLE}
         </motion.p>

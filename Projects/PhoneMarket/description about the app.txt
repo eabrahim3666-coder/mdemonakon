@@ -1,0 +1,33 @@
+📱 PhoneMarket — Premium Smartphone E-Commerce Platform
+
+> *A full-stack, real-time e-commerce experience with an Apple-grade storefront and a complete admin operations suite.*
+### ✦️ Overview
+
+**PhoneMarket** is a production-ready e-commerce platform I built end-to-end — from a cinematic, dark-mode storefront inspired by Apple's design language, all the way to a powerful admin dashboard for running the business.
+
+The app delivers a complete shopping journey: customers can browse a rich catalog of flagship smartphones (each with color/storage variants and deep technical spec sheets), compare models side-by-side, manage carts with coupon discounts, check out securely, track orders, leave reviews, and save favorites — all backed by a fast, secure REST API and real-time infrastructure.
+
+What makes it stand out is the **real-time layer**: customers chat live with support staff over WebSockets (typing indicators, unread counts, read receipts — the works), and order/chat notifications stream to users instantly. On the operations side, admins get full CRUD control over products, orders, users, reviews, and coupons — plus a visual **analytics dashboard** with revenue trends, conversion funnels, and category/brand performance.
+
+### ✨ Highlights
+
+- **Cinematic Storefront** — Apple-style dark landing page with scroll-reveal animations, featured-product heroes, and responsive layouts (Tailwind).
+- **Complete Commerce Flow** — Variant-aware product catalog, comparison tool, wishlist, cart with coupon engine, multi-method checkout, and full order lifecycle (pending → shipped → delivered → returns/refunds).
+- **Real-Time Live Chat** — Socket.io-powered customer↔admin support with presence, typing, and unread tracking.
+- **Secure Auth & Accounts** — JWT + httpOnly cookies, role-based access, email verification, and password recovery via SMTP.
+- **Admin Analytics Suite** — Revenue-by-period charts, conversion funnel visualization, and brand/category performance tables.
+- **Production-Grade Engineering** — Rate limiting, security headers, NoSQL injection sanitization, optimized caching, and a single-service architecture that serves the API, sockets, and SPA from one origin.
+
+---
+
+### 🛠 Built With
+
+**React 18** · **Redux Toolkit** · **Tailwind CSS** · **Node.js / Express** · **MongoDB (Mongoose)** · **Socket.io** · **JWT Auth** · **Nodemailer** · **REST API**
+
+
+
+### 🔗 Links
+
+- 🌐 **Live Site:** [getnextcall.com](https://getnextcall.com)
+- 💻 **Source Code:** [GitHub — PhoneMarket](https://github.com/eabrahim3666-coder/PhoneMarket)
+

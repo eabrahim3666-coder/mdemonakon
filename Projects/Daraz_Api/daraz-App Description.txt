@@ -1,0 +1,23 @@
+1. App Description
+
+**DaraZ-Clone** is a production-grade, multi-vendor eCommerce backend API built on a modular, event-driven monolith architecture. It simulates a full marketplace in a single Express application: customers browse a Redis-cached product catalog, add SKU-specific items to race-safe distributed-locked carts, and check out into orders that atomically reserve per-SKU inventory across multiple sellers. When payment succeeds (via Stripe PaymentIntents and signature-verified webhooks), the order is confirmed, reserved stock is marked sold, and the order auto-splits into per-seller fulfilment records that purchase real shipping labels through Shippo and notify buyers by email or SMS (Twilio), with tracking webhooks driving the delivery lifecycle and automatic inventory rollback on failed or refunded payments. The platform layers on enterprise-grade security — JWT auth with a Redis token blacklist, Argon2 password hashing, account lockout, optional 2FA (TOTP, SMS, or email OTP), Google and Facebook OAuth, role-based access control (admin/seller/customer/delivery/support), geo-anomaly fraud detection, and Redis-based rate limiting — plus real-time buyer↔seller chat over Socket.IO with a Redis adapter for horizontal scaling, typing indicators, and read receipts. All six domain modules (auth, order, cart, product, payment, fulfilment) publish Kafka events behind a feature flag, and the entire system degrades gracefully, booting with just MongoDB and Redis while Stripe, Shippo, OAuth, Twilio, SMTP, and Kafka activate only when their keys are present.
+
+## 2. Major Tech
+
+| Layer | Tech |
+|---|---|
+| Backend | **Node.js + Express** (modular monolith, per-domain modules) |
+| Database | **MongoDB** with **Mongoose** ODM (multi-variant products, orders, fulfilments, chat) |
+| Cache & State | **Redis (ioredis)** — product/order/user cache, JWT blacklist, sessions, cart + distributed locks, 2FA OTP, login rate limiting, typing indicators |
+| Real-Time | **Socket.IO** (+ Redis adapter) — buyer↔seller chat |
+| Event Streaming | **Kafka (kafkajs)** — 6 domain event producers (feature-flagged) |
+| Payments | **Stripe** — PaymentIntents + signed webhooks (raw-body) |
+| Shipping | **Shippo** — rates, label purchase, tracking webhooks |
+| Auth | **JWT** + **Argon2**, **Passport.js** (Google & Facebook OAuth), speakeasy TOTP, **Twilio** SMS |
+| Email | **Nodemailer** + **EJS** templates (Ethereal in dev) |
+| Security | Helmet, express-rate-limit / rate-limiter-flexible, express-mongo-sanitize, express-validator |
+| Logging | Winston + Morgan |
+| Extras | geoip-lite (fraud detection), cookie-parser, uuid, cors |
+
+## 3. Links
+GitHub Repository:** [https://github.com/eabrahim3666-coder/Daraz-api](https://github.com/eabrahim3666-coder/Daraz-api)

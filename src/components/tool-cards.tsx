@@ -7,23 +7,116 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Briefcase,
   Layers,
-  PartyPopper,
   UserRoundSearch,
   Laugh,
   ChevronRight,
+  ChevronDown,
   Mail,
-  Sparkles,
-  Youtube,
   X,
   Link as LinkIcon,
+  Server,
+  Network,
+  Zap,
+  Radio,
+  ShieldCheck,
+  Database,
+  Sparkles,
+  PhoneCall,
+  Webhook,
+  FileCode,
+  Braces,
+  Wind,
+  GitBranch,
+  Github,
+  Lock,
+  Cloud,
+  Cable,
+  MessageSquare,
+  CreditCard,
+  Calendar,
+  Package,
+  Globe,
+  Workflow,
+  Atom,
+  RefreshCw,
+  MousePointer2,
+  BarChart3,
+  Rocket,
+  FlaskConical,
+  type LucideIcon,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { brand, presentation, projects, skillCategories, funFacts, type Project } from "@/lib/persona";
+import { brand, presentation, projects, skillCategories, faq, type Project } from "@/lib/persona";
+
+/* Skill icon lookup — data files stay framework-free, the card resolves
+   the string key to a lucide component at render time. */
+const SKILL_ICONS: Record<string, LucideIcon> = {
+  server: Server,
+  network: Network,
+  zap: Zap,
+  radio: Radio,
+  "shield-check": ShieldCheck,
+  database: Database,
+  sparkles: Sparkles,
+  "phone-call": PhoneCall,
+  webhook: Webhook,
+  layers: Layers,
+  "file-code": FileCode,
+  braces: Braces,
+  wind: Wind,
+  "git-branch": GitBranch,
+  github: Github,
+  lock: Lock,
+  cloud: Cloud,
+  cable: Cable,
+  "message-square": MessageSquare,
+  "credit-card": CreditCard,
+  calendar: Calendar,
+  package: Package,
+  mail: Mail,
+  globe: Globe,
+  workflow: Workflow,
+  atom: Atom,
+  "refresh-cw": RefreshCw,
+  "mouse-pointer-2": MousePointer2,
+  "bar-chart-3": BarChart3,
+  rocket: Rocket,
+  "flask-conical": FlaskConical,
+};
 
 /* Apple-style ease curve used across the reference site — one shared rhythm
    so every card entrance feels like the same cinematic "voice" */
 const APPLE_EASE = [0.19, 1, 0.22, 1] as const;
+
+/**
+ * Reusable cinematic viewport-reveal wrapper.
+ * As the user scrolls down, sections emerge smoothly with a subtle lift,
+ * opacity fade, and Apple-grade cubic-bezier easing.
+ */
+function ScrollReveal({
+  children,
+  className = "",
+  delay = 0,
+  y = 28,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+  y?: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y, filter: "blur(4px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.75, delay, ease: APPLE_EASE }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /* Projects — expandable card carousel (like the original site):       */
@@ -125,33 +218,258 @@ function BlurImage({ src, alt, className }: { src: string; alt: string; classNam
   );
 }
 
+/* Case-study architecture diagram — vertical flow on a dark panel,
+   thin white lines with subtle orange accents (Express API highlighted
+   as the core, orange nodes on every connector). */
+function ArchitectureDiagram({ nodes }: { nodes: string[] }) {
+  const W = 320;
+  const nodeH = 52;
+  const gap = 44;
+  const H = nodes.length * (nodeH + gap) - gap + 48;
+  const cx = W / 2;
+  const boxW = 220;
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className="mx-auto h-auto w-full max-w-xs"
+      role="img"
+      aria-label="NextCall system architecture flow"
+    >
+      {nodes.map((n, i) => {
+        const y = 24 + i * (nodeH + gap);
+        const isCore = n === "Express API";
+        const isLast = i === nodes.length - 1;
+        return (
+          <g key={n}>
+            {i > 0 && (
+              <>
+                <line
+                  x1={cx}
+                  y1={y - gap}
+                  x2={cx}
+                  y2={y - 6}
+                  stroke="rgba(255,255,255,0.4)"
+                  strokeWidth="1.5"
+                />
+                <circle cx={cx} cy={y - gap / 2} r="3" fill="#F97316" />
+              </>
+            )}
+            <rect
+              x={cx - boxW / 2}
+              y={y}
+              width={boxW}
+              height={nodeH}
+              rx="14"
+              fill="rgba(255,255,255,0.04)"
+              stroke={isCore ? "#F97316" : isLast ? "rgba(249,115,22,0.55)" : "rgba(255,255,255,0.25)"}
+              strokeWidth={isCore ? 1.5 : 1}
+            />
+            <text
+              x={cx}
+              y={y + nodeH / 2 + 4.5}
+              textAnchor="middle"
+              fontSize="14"
+              fill="#FFFFFF"
+              fontWeight="500"
+            >
+              {n}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/* Case-study intro — heading, subtitle, capability badges, problem/
+   solution, tech pills, architecture diagram and feature cards. */
+function CaseStudyIntro({ project }: { project: Project }) {
+  const cs = project.caseStudy!;
+  return (
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 text-sm text-neutral-500">
+          <span>{project.date}</span>
+        </div>
+        {cs.heading && (
+          <h3 className="text-xl font-semibold tracking-tight text-neutral-900 md:text-2xl">
+            {cs.heading}
+          </h3>
+        )}
+        <p className="text-neutral-500 md:text-lg">{cs.subtitle}</p>
+        {cs.capabilities && cs.capabilities.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {cs.capabilities.map((cap) => (
+              <span
+                key={cap}
+                className="rounded-full border border-neutral-200 bg-white/70 px-3.5 py-1.5 text-xs font-medium text-neutral-700 shadow-sm backdrop-blur"
+              >
+                {cap}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-3xl bg-[#F5F5F7] p-8">
+        <div className="grid gap-8 md:grid-cols-2">
+          <div>
+            <h4 className="text-sm font-semibold tracking-wide text-neutral-900 uppercase">Problem</h4>
+            <p className="text-secondary-foreground mt-2 font-sans text-base leading-relaxed">
+              {cs.problem}
+            </p>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold tracking-wide text-neutral-900 uppercase">Solution</h4>
+            <p className="text-secondary-foreground mt-2 font-sans text-base leading-relaxed">
+              {cs.solution}
+            </p>
+          </div>
+        </div>
+        <div className="pt-6">
+          <h3 className="mb-3 text-sm uppercase tracking-wide text-neutral-500">Technologies</h3>
+          <div className="flex flex-wrap gap-2">
+            {project.techStack.map((tech) => (
+              <span
+                key={tech}
+                className="rounded-full bg-neutral-200 px-3 py-1 text-sm text-neutral-800"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {cs.architecture && cs.architecture.length > 0 && (
+        <div className="rounded-3xl bg-neutral-950 p-8">
+          <h3 className="text-sm font-semibold tracking-wide text-white uppercase">Architecture</h3>
+          <p className="mt-1 text-sm text-neutral-400">How a call flows through the system</p>
+          <div className="mt-6">
+            <ArchitectureDiagram nodes={cs.architecture} />
+          </div>
+        </div>
+      )}
+
+      {cs.features && cs.features.length > 0 && (
+        <div>
+          <h3 className="mb-4 text-sm uppercase tracking-wide text-neutral-500">What it does</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {cs.features.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-2xl border border-neutral-200 bg-white p-5 transition-[border-color,box-shadow] duration-300 hover:border-neutral-300 hover:shadow-[0_8px_28px_-8px_rgba(234,88,12,0.18)]"
+              >
+                <h4 className="font-semibold text-neutral-900">{f.title}</h4>
+                <p className="mt-1 text-sm text-neutral-500">{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {cs.flowText && (
+        <div>
+          <h3 className="mb-2 text-sm font-semibold tracking-wide text-neutral-900 uppercase">
+            How an order flows
+          </h3>
+          <p className="text-secondary-foreground font-sans text-base leading-relaxed">
+            {cs.flowText}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Case-study outro — failure story, outcome cards, engineering
+   highlights and the closing statement, composed per project. */
+function CaseStudyOutro({ project }: { project: Project }) {
+  const cs = project.caseStudy!;
+  return (
+    <div className="space-y-8">
+      {cs.failText && (
+        <div>
+          <h3 className="mb-2 text-sm font-semibold tracking-wide text-neutral-900 uppercase">
+            When things fail
+          </h3>
+          <p className="text-secondary-foreground font-sans text-base leading-relaxed">
+            {cs.failText}
+          </p>
+        </div>
+      )}
+
+      {cs.outcomeFeatures && cs.outcomeFeatures.length > 0 && (
+        <div>
+          <h3 className="mb-4 text-sm uppercase tracking-wide text-neutral-500">What it does</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {cs.outcomeFeatures.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-2xl border border-neutral-200 bg-white p-5 transition-[border-color,box-shadow] duration-300 hover:border-neutral-300 hover:shadow-[0_8px_28px_-8px_rgba(234,88,12,0.18)]"
+              >
+                <h4 className="font-semibold text-neutral-900">{f.title}</h4>
+                <p className="mt-1 text-sm text-neutral-500">{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {cs.highlights && cs.highlights.length > 0 && (
+        <div>
+          <h3 className="mb-4 text-sm uppercase tracking-wide text-neutral-500">Engineering Highlights</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {cs.highlights.map((h) => (
+              <div
+                key={h.title}
+                className="rounded-2xl border border-neutral-200 bg-white p-5 transition-[border-color,box-shadow] duration-300 hover:border-neutral-300 hover:shadow-[0_8px_28px_-8px_rgba(234,88,12,0.18)]"
+              >
+                <h4 className="font-semibold text-neutral-900">{h.title}</h4>
+                <p className="mt-1 text-sm text-neutral-500">{h.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <p className="border-l-2 border-orange-400 pl-4 text-base leading-relaxed text-neutral-700 md:text-lg">
+        {cs.closing}
+      </p>
+    </div>
+  );
+}
+
 /* The detail content shown inside the expanded modal */
 function ProjectDetail({ project }: { project: Project }) {
   return (
     <div className="space-y-10">
-      <div className="rounded-3xl bg-[#F5F5F7] p-8">
-        <div className="space-y-6">
-          <div className="flex items-center gap-2 text-sm text-neutral-500">
-            <span>{project.date}</span>
-          </div>
-          <p className="text-secondary-foreground font-sans text-base leading-relaxed md:text-lg">
-            {project.description}
-          </p>
-          <div className="pt-4">
-            <h3 className="mb-3 text-sm uppercase tracking-wide text-neutral-500">Technologies</h3>
-            <div className="flex flex-wrap gap-2">
-              {project.techStack.map((tech) => (
-                <span
-                  key={tech}
-                  className="rounded-full bg-neutral-200 px-3 py-1 text-sm text-neutral-800"
-                >
-                  {tech}
-                </span>
-              ))}
+      {project.caseStudy ? (
+        <CaseStudyIntro project={project} />
+      ) : (
+        <div className="rounded-3xl bg-[#F5F5F7] p-8">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 text-sm text-neutral-500">
+              <span>{project.date}</span>
+            </div>
+            <p className="text-secondary-foreground font-sans text-base leading-relaxed md:text-lg">
+              {project.description}
+            </p>
+            <div className="pt-4">
+              <h3 className="mb-3 text-sm uppercase tracking-wide text-neutral-500">Technologies</h3>
+              <div className="flex flex-wrap gap-2">
+                {project.techStack.map((tech) => (
+                  <span
+                    key={tech}
+                    className="rounded-full bg-neutral-200 px-3 py-1 text-sm text-neutral-800"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {project.links && project.links.length > 0 && (
         <div className="mb-24">
@@ -179,25 +497,29 @@ function ProjectDetail({ project }: { project: Project }) {
 
       {project.images && project.images.length > 0 && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-6">
             {project.images.map((img, i) => (
-              <div
-                key={img.src + i}
-                className="group/img relative aspect-video cursor-pointer overflow-hidden rounded-2xl"
-              >
-                <Image
-                  src={img.src}
-                  alt={img.alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 900px"
-                  className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover/img:scale-105"
-                  unoptimized
-                />
+              <div key={img.src + i} className="space-y-2">
+                <p className="px-1 text-sm font-medium tracking-wide text-neutral-500">{img.alt}</p>
+                <div
+                  className="group/img relative aspect-video cursor-pointer overflow-hidden rounded-2xl"
+                >
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 900px"
+                    className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover/img:scale-105"
+                    unoptimized
+                  />
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
+
+      {project.caseStudy && <CaseStudyOutro project={project} />}
     </div>
   );
 }
@@ -408,15 +730,26 @@ export function ProjectsCard() {
       >
         My Projects
       </motion.h2>
+      <motion.p
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.12, duration: 0.6, ease: APPLE_EASE }}
+        className="mx-auto max-w-7xl px-2 pt-3 text-sm leading-relaxed text-neutral-500 md:text-base"
+      >
+        Four products, all built end to end. An AI receptionist platform, the multi vendor commerce
+        API that taught me how money moves, the lead engine that feeds NextCall, and a real time
+        storefront. Open any card for the problem, the architecture and the full build.
+      </motion.p>
       <ExpandableCarousel items={items} />
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Skills — vertical cascade like the reference: container scales in   */
-/* (0.98→1, Apple ease), categories stagger at 0.1s intervals, and     */
-/* each category's chips pop in (scale .9→1) with their own stagger    */
+/* Skills — GitHub-repo-style cards: neutral background, subtle border, */
+/* bold skill name, gray description, and a meta row with proficiency. */
+/* Same cascade rhythm: container scales in, categories stagger, cards */
+/* rise in with their own stagger.                                    */
 /* ------------------------------------------------------------------ */
 
 export function SkillsCard() {
@@ -424,13 +757,13 @@ export function SkillsCard() {
     hidden: { opacity: 0, y: 24 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: APPLE_EASE } },
   };
-  const chipsContainerVariants = {
+  const cardsContainerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
   };
-  const chipVariants = {
-    hidden: { opacity: 0, scale: 0.85 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: "easeOut" as const } },
+  const cardVariants = {
+    hidden: { opacity: 0, y: 14 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
   };
 
   return (
@@ -446,10 +779,10 @@ export function SkillsCard() {
         transition={{ delay: 0.1, duration: 0.6, ease: APPLE_EASE }}
         className="text-primary mb-8 px-2 text-3xl font-bold md:text-4xl"
       >
-        Skills &amp; Expertise
+        Core Technologies
       </motion.h2>
       <motion.div
-        className="space-y-8 px-2"
+        className="space-y-10 px-2 pb-4"
         variants={{
           hidden: { opacity: 0 },
           visible: { opacity: 1, transition: { staggerChildren: 0.12 } },
@@ -457,41 +790,46 @@ export function SkillsCard() {
         initial="hidden"
         animate="visible"
       >
-        {skillCategories.map((cat) => {
-          const icons = {
-            "Frontend Development": Layers,
-            "Backend & Systems": Briefcase,
-            "AI & Fullstack Engineering": Sparkles,
-            "Design & Creative Tools": Sparkles,
-            "Soft Skills": Laugh,
-          };
-          const Icon = icons[cat.category as keyof typeof icons] ?? Layers;
-          return (
-            <motion.div key={cat.category} variants={categoryVariants} className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Icon className="text-foreground h-5 w-5" />
-                <h3 className="text-accent-foreground text-lg font-semibold">{cat.category}</h3>
-              </div>
-              <motion.div
-                className="flex flex-wrap gap-2"
-                variants={chipsContainerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                {cat.skills.map((s) => (
-                  <motion.span
-                    key={s}
-                    variants={chipVariants}
-                    whileHover={{ scale: 1.04, transition: { duration: 0.2 } }}
-                    className={`rounded-full border px-3 py-1.5 font-normal ${cat.color}`}
+        {skillCategories.map((cat, catIdx) => (
+          <motion.section
+            key={cat.category}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.6, delay: 0.05 + catIdx * 0.08, ease: APPLE_EASE }}
+            className="space-y-4"
+          >
+            <div className="space-y-1 px-1">
+              <h3 className="text-accent-foreground text-lg font-semibold">{cat.category}</h3>
+              <p className="text-sm text-neutral-500">{cat.note}</p>
+            </div>
+            <motion.div
+              className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+              variants={cardsContainerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-30px" }}
+            >
+              {cat.skills.map((skill) => {
+                const Icon = SKILL_ICONS[skill.icon];
+                return (
+                  <motion.article
+                    key={skill.name}
+                    variants={cardVariants}
+                    whileHover={{ y: -4, transition: { duration: 0.25, ease: APPLE_EASE } }}
+                    className="group flex h-full flex-col items-center rounded-xl border border-neutral-200 bg-white p-4 text-center transition-[border-color,box-shadow] duration-300 hover:border-neutral-300 hover:shadow-[0_8px_28px_-8px_rgba(2,113,227,0.25)]"
                   >
-                    {s}
-                  </motion.span>
-                ))}
-              </motion.div>
+                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-100 bg-neutral-50">
+                      <Icon className="h-4 w-4 text-[#0171E3] transition-transform duration-300 group-hover:scale-105" />
+                    </div>
+                    <h4 className="font-semibold text-neutral-900">{skill.name}</h4>
+                    <p className="mt-0.5 text-sm text-neutral-500">{skill.subtitle}</p>
+                  </motion.article>
+                );
+              })}
             </motion.div>
-          );
-        })}
+          </motion.section>
+        ))}
       </motion.div>
     </motion.div>
   );
@@ -554,13 +892,14 @@ export function PresentationCard() {
               visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: APPLE_EASE, delay: 0.25 } },
             }}
           >
+            <p className="text-muted-foreground mb-2 text-[11px] font-medium tracking-widest uppercase">
+              What I Build
+            </p>
             <h1 className="text-foreground text-xl font-semibold tracking-tight md:text-3xl">
               {presentation.fullName}
             </h1>
-            <div className="mt-1 flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
-              <p className="text-muted-foreground text-sm">{presentation.age}</p>
-              <div className="bg-border hidden h-1.5 w-1.5 rounded-full md:block" />
-              <p className="text-muted-foreground text-sm">{presentation.location}</p>
+            <div className="mt-1">
+              <p className="text-muted-foreground text-sm">{presentation.subtitle}</p>
             </div>
           </motion.div>
 
@@ -576,6 +915,8 @@ export function PresentationCard() {
             {presentation.intro}
           </motion.p>
 
+          {/* Chips — desktop: beside the photo. On mobile they move below
+              the story section so the paragraphs read as one flow. */}
           <motion.div
             initial="hidden"
             animate="visible"
@@ -583,7 +924,7 @@ export function PresentationCard() {
               hidden: { opacity: 0 },
               visible: { opacity: 1, transition: { delayChildren: 0.65, staggerChildren: 0.07 } },
             }}
-            className="mt-6 flex flex-wrap gap-2"
+            className="mt-6 hidden flex-wrap gap-2 md:flex"
           >
             {presentation.chips.map((chip) => (
               <motion.span
@@ -602,29 +943,59 @@ export function PresentationCard() {
       </div>
 
       {/* The rest of the story — clean section under the grid, closing
-          with the signature line as plain body text */}
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.55, duration: 0.7, ease: APPLE_EASE }}
-        className="mt-12 border-t border-border pt-8"
-      >
-        <p className="text-foreground max-w-2xl text-justify leading-relaxed">
-          {presentation.moreText}
-        </p>
+          with the signature line as plain body text. Reveals smoothly as user scrolls. */}
+      <ScrollReveal y={24} className="mt-6 md:mt-12 md:border-t md:border-border md:pt-8">
+        {/* What I specialize in — minimal bulleted list, same quiet style */}
+        <div className="max-w-2xl">
+          <p className="text-muted-foreground text-[11px] font-medium tracking-widest uppercase">
+            What I specialize in
+          </p>
+          <ul className="mt-4 space-y-2.5">
+            {presentation.specialties.map((s, idx) => (
+              <motion.li
+                key={s}
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 + idx * 0.08, ease: APPLE_EASE }}
+                className="text-foreground flex items-center gap-2.5 text-sm leading-relaxed md:text-base"
+              >
+                <span className="bg-[#0171E3] h-1.5 w-1.5 shrink-0 rounded-full" />
+                {s}
+              </motion.li>
+            ))}
+          </ul>
+        </div>
         <p className="text-foreground mt-5 max-w-2xl text-justify leading-relaxed">
           {presentation.punchline}
         </p>
-      </motion.div>
+      </ScrollReveal>
 
-      {/* Fact sheet — quiet spec strip */}
-      <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-border pt-8 lg:grid-cols-4">
+      {/* Chips — mobile-only: after the story, before the fact sheet */}
+      <ScrollReveal className="mt-8 flex flex-wrap gap-2 md:hidden">
+        {presentation.chips.map((chip, idx) => (
+          <motion.span
+            key={chip}
+            initial={{ opacity: 0, scale: 0.85 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: idx * 0.05, ease: APPLE_EASE }}
+            className="text-muted-foreground rounded-full border border-border px-3 py-1 text-sm"
+          >
+            {chip}
+          </motion.span>
+        ))}
+      </ScrollReveal>
+
+      {/* Fact sheet — quiet spec strip. Reveals as you scroll down */}
+      <ScrollReveal y={20} className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 md:border-t md:border-border md:pt-8 lg:grid-cols-3">
         {presentation.facts.map((f, i) => (
           <motion.div
             key={f.label}
             initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 + i * 0.08, duration: 0.5, ease: APPLE_EASE }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.08 * i, duration: 0.55, ease: APPLE_EASE }}
           >
             <p className="text-muted-foreground text-[11px] font-medium tracking-widest uppercase">
               {f.label}
@@ -632,17 +1003,48 @@ export function PresentationCard() {
             <p className="text-foreground mt-1.5 text-sm font-medium">{f.value}</p>
           </motion.div>
         ))}
-      </div>
+      </ScrollReveal>
     </motion.div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Contact — big card with email + socials                             */
+/* Contact — minimal, eye-catching: big invite headline, a giant       */
+/* email link, and social link cards (GitHub / Instagram / LinkedIn    */
+/* placeholder). Every link is a real <a>, so visitors actually land   */
+/* on the profile.                                                     */
 /* ------------------------------------------------------------------ */
 
+const socialHandles: Record<string, string> = {
+  GitHub: "@eabrahim3666-coder",
+  Instagram: "@em0n36",
+  LinkedIn: "Coming soon",
+};
+
+const BUDGET_OPTIONS = ["Under $500", "$500 to $2,000", "$2,000 to $5,000", "$5,000+", "Not sure yet"];
+const TIMELINE_OPTIONS = ["As soon as possible", "In the next month", "Flexible, quality first"];
+
+const CONTACT_INPUT_CLS =
+  "w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors duration-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100";
+
 export function ContactCard() {
-  const open = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
+  const [form, setForm] = useState({ name: "", email: "", message: "", budget: "", timeline: "" });
+  const [sent, setSent] = useState(false);
+
+  const submitProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    const subject = `Project inquiry from ${form.name || "a visitor"}`;
+    const lines = [
+      `Name: ${form.name}`,
+      `Email: ${form.email}`,
+      `Project: ${form.message}`,
+      form.budget ? `Budget: ${form.budget}` : "",
+      form.timeline ? `Timeline: ${form.timeline}` : "",
+    ].filter(Boolean);
+    window.location.href = `mailto:${brand.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
+    setSent(true);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 36 }}
@@ -656,147 +1058,376 @@ export function ContactCard() {
         transition={{ delay: 0.15, duration: 0.6, ease: APPLE_EASE }}
         className="bg-accent w-full overflow-hidden rounded-3xl px-6 py-8 font-sans sm:px-10 md:px-16 md:py-12"
       >
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-foreground text-3xl font-semibold md:text-4xl">Contacts</h2>
-          <span className="text-muted-foreground mt-2 text-sm sm:mt-0">@{brand.name}</span>
-        </div>
-        <div className="mt-8 flex flex-col md:mt-10">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
+        {/* Invite headline */}
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <motion.h2
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45, duration: 0.5, ease: APPLE_EASE }}
-            className="group mb-5 cursor-pointer"
-            onClick={() => open(`mailto:${brand.email}`)}
+            transition={{ delay: 0.25, duration: 0.6, ease: APPLE_EASE }}
+            className="text-foreground text-3xl font-semibold tracking-tight md:text-4xl"
           >
-            <div className="flex items-center gap-1">
-              <span className="hover:underline text-base font-medium text-blue-500 sm:text-lg">
-                <a href={`mailto:${brand.email}`}>{brand.email}</a>
-              </span>
-              <Mail className="h-5 w-5 text-blue-500 transition-transform duration-300 group-hover:translate-x-1" />
-            </div>
-          </motion.div>
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1, transition: { delayChildren: 0.6, staggerChildren: 0.06 } },
-            }}
-            className="flex flex-wrap gap-x-6 gap-y-3 sm:gap-x-8"
+            Let&rsquo;s build something.
+          </motion.h2>
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="text-muted-foreground text-sm"
           >
-            {brand.socials.map((s) => (
-              <motion.button
+            Have a project in mind? My inbox is open.
+          </motion.span>
+        </div>
+
+        {/* Giant email link */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45, duration: 0.5, ease: APPLE_EASE }}
+          className="mt-8 md:mt-10"
+        >
+          <a
+            href={`mailto:${brand.email}`}
+            className="group inline-flex flex-wrap items-center gap-2 text-xl font-medium text-blue-500 hover:underline sm:text-2xl md:text-3xl"
+          >
+            {brand.email}
+            <Mail className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 sm:h-6 sm:w-6" />
+          </a>
+          <p className="text-muted-foreground mt-3 text-sm">
+            Prefer a real conversation? Book a free 20 minute intro call, link below.
+          </p>
+        </motion.div>
+
+        {/* Project inquiry form — three fields and a click, delivers via email */}
+        <motion.div
+          initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.7, ease: APPLE_EASE }}
+          className="mt-8 rounded-2xl border border-neutral-200/70 bg-white p-6 md:mt-10 md:p-8"
+        >
+          <h3 className="text-foreground text-lg font-semibold tracking-tight">
+            Tell me about your project
+          </h3>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Three fields, one click. You will hear back within 24 hours with questions or a quote.
+          </p>
+
+          {sent ? (
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: APPLE_EASE }}
+              className="mt-6 rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-sm font-medium text-green-800"
+            >
+              Got it 👍 Your project landed in my inbox. Expect a reply within 24 hours, usually much
+              faster.
+            </motion.p>
+          ) : (
+            <form onSubmit={submitProject} className="mt-6 space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label htmlFor="pf-name" className="text-muted-foreground text-[11px] font-medium tracking-widest uppercase">
+                    Your name
+                  </label>
+                  <input
+                    id="pf-name"
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="John Carter"
+                    className={CONTACT_INPUT_CLS}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="pf-email" className="text-muted-foreground text-[11px] font-medium tracking-widest uppercase">
+                    Email
+                  </label>
+                  <input
+                    id="pf-email"
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    placeholder="you@company.com"
+                    className={CONTACT_INPUT_CLS}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="pf-message" className="text-muted-foreground text-[11px] font-medium tracking-widest uppercase">
+                  What are you building?
+                </label>
+                <textarea
+                  id="pf-message"
+                  required
+                  rows={4}
+                  value={form.message}
+                  onChange={(e) => setForm({ ...form, message: e.target.value })}
+                  placeholder="A few lines are enough. What does it do, who is it for, and what problem should I solve first?"
+                  className={cn(CONTACT_INPUT_CLS, "resize-none")}
+                />
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label htmlFor="pf-budget" className="text-muted-foreground text-[11px] font-medium tracking-widest uppercase">
+                    Budget range
+                  </label>
+                  <select
+                    id="pf-budget"
+                    value={form.budget}
+                    onChange={(e) => setForm({ ...form, budget: e.target.value })}
+                    className={CONTACT_INPUT_CLS}
+                  >
+                    <option value="">Select a range</option>
+                    {BUDGET_OPTIONS.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="pf-timeline" className="text-muted-foreground text-[11px] font-medium tracking-widest uppercase">
+                    When do you need it?
+                  </label>
+                  <select
+                    id="pf-timeline"
+                    value={form.timeline}
+                    onChange={(e) => setForm({ ...form, timeline: e.target.value })}
+                    className={CONTACT_INPUT_CLS}
+                  >
+                    <option value="">Optional</option>
+                    {TIMELINE_OPTIONS.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <button
+                  type="submit"
+                  className="cursor-pointer rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-600"
+                >
+                  Send my project
+                </button>
+                <p className="text-muted-foreground mt-3 text-xs">
+                  No newsletters, no spam. Your details stay between us.
+                </p>
+              </div>
+            </form>
+          )}
+        </motion.div>
+
+        {/* Social link cards */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.09 } },
+          }}
+          className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3 md:mt-10"
+        >
+          {brand.socials.map((s) => {
+            const isPlaceholder = !s.url;
+            const inner = (
+              <>
+                <div className="space-y-0.5">
+                  <p className="text-neutral-900 text-sm font-semibold">{s.name}</p>
+                  <p className="text-xs text-neutral-500">{socialHandles[s.name] ?? s.name}</p>
+                </div>
+                {isPlaceholder ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-neutral-300" />
+                ) : (
+                  <LinkIcon className="text-neutral-400 transition-all duration-300 group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5 group-hover/link:text-neutral-700 h-4 w-4" />
+                )}
+              </>
+            );
+            const cls = cn(
+              "group/link flex items-center justify-between rounded-xl border bg-white p-4 transition-colors duration-300",
+              isPlaceholder
+                ? "border-dashed border-neutral-200 opacity-60"
+                : "border-neutral-200 hover:border-neutral-400",
+            );
+            return (
+              <motion.div
                 key={s.name}
                 variants={{
-                  hidden: { opacity: 0, y: 12 },
+                  hidden: { opacity: 0, y: 14 },
                   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: APPLE_EASE } },
                 }}
-                className="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors"
-                onClick={() => open(s.url)}
-                title={s.name}
               >
-                {s.name}
-              </motion.button>
+                {isPlaceholder ? (
+                  <div className={cls} title="LinkedIn profile coming soon">
+                    {inner}
+                  </div>
+                ) : (
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" className={cls}>
+                    {inner}
+                  </a>
+                )}
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* How we start — quiet 3-step strip */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9, duration: 0.6 }}
+          className="mt-10 border-t border-neutral-200/70 pt-8"
+        >
+          <p className="text-muted-foreground text-[11px] font-medium tracking-widest uppercase">
+            How we start
+          </p>
+          <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-4">
+            {[
+              { step: "01", title: "Send your project brief", desc: "The form above or a plain email, whatever is easier for you." },
+              { step: "02", title: "Get a clear quote", desc: "Scope, timeline and price — back in your inbox within 24 hours." },
+              { step: "03", title: "I start building", desc: "With progress updates you never have to chase." },
+            ].map((s, i) => (
+              <motion.div
+                key={s.step}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 + i * 0.1, duration: 0.5, ease: APPLE_EASE }}
+                className="space-y-1"
+              >
+                <p className="text-xs font-semibold tracking-widest text-blue-500">{s.step}</p>
+                <p className="text-foreground text-sm font-medium">{s.title}</p>
+                <p className="text-muted-foreground text-xs leading-relaxed">{s.desc}</p>
+              </motion.div>
             ))}
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
+
+        {/* Availability bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.3, duration: 0.5, ease: APPLE_EASE }}
+          className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-neutral-200/70 bg-white px-5 py-4"
+        >
+          <span className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+            </span>
+            <span className="text-foreground text-sm font-medium">Available for new projects</span>
+          </span>
+          <span className="bg-border hidden h-1 w-1 rounded-full sm:block" />
+          <span className="text-muted-foreground text-sm">Replies within 24 hours</span>
+          <span className="bg-border hidden h-1 w-1 rounded-full sm:block" />
+          <span className="text-muted-foreground text-sm">Barishal, Bangladesh · GMT+6</span>
+        </motion.div>
+
+        {/* Bottom blurb */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 0.5 }}
+          className="text-muted-foreground mt-8 px-2 text-center text-sm"
+        >
+          Form, email or a quick call 👇 Pick whatever feels easiest. All roads reach the same inbox.
+        </motion.p>
       </motion.div>
     </motion.div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Fun — Mont Blanc adventure card: title rises in, photo scales up,   */
-/* caption overlays on hover, lightbox on click                        */
+/* FAQ — minimal accordion: bordered list, chevron rotates, answer     */
+/* expands with the shared Apple ease. Client questions, pre-answered. */
 /* ------------------------------------------------------------------ */
 
-export function FunCard() {
-  const [lightbox, setLightbox] = useState(false);
+export function FaqCard() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="mx-auto w-full"
+      initial={{ scale: 0.98, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.7, ease: APPLE_EASE }}
+      className="mx-auto w-full max-w-5xl"
     >
-      <motion.div
+      <motion.h2
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: APPLE_EASE, delay: 0.05 }}
-        className="mb-8"
+        transition={{ delay: 0.1, duration: 0.6, ease: APPLE_EASE }}
+        className="text-primary mb-2 px-2 text-3xl font-bold md:text-4xl"
       >
-        <h2 className="text-foreground text-3xl font-semibold md:text-4xl">{funFacts.title}</h2>
-      </motion.div>
-      <motion.div
-        initial={{ scale: 0.94, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.25, duration: 0.9, ease: APPLE_EASE }}
-        className="relative aspect-square w-full cursor-pointer overflow-hidden rounded-2xl"
-        whileHover={{ scale: 1.02 }}
-        onClick={() => setLightbox(true)}
-      >
-        <Image
-          src={funFacts.photo.src}
-          alt={funFacts.photo.alt}
-          fill
-          sizes="(max-width: 768px) 100vw, 700px"
-          className="h-full w-full object-cover transition-transform"
-          unoptimized
-        />
-        {funFacts.photo.caption && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-            className="absolute inset-0 flex items-end bg-black/30 p-4"
-          >
-            <p className="text-sm font-medium text-white sm:text-base">{funFacts.photo.caption}</p>
-          </motion.div>
-        )}
-      </motion.div>
+        Frequently Asked Questions
+      </motion.h2>
       <motion.p
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7, duration: 0.6, ease: APPLE_EASE }}
-        className="text-muted-foreground mt-4 text-sm leading-relaxed"
-      >
-        {funFacts.text}
-      </motion.p>
-      <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.95, duration: 0.5 }}
-        onClick={() => window.open(funFacts.video, "_blank", "noopener,noreferrer")}
-        className="mt-3 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-red-500 hover:underline"
+        transition={{ delay: 0.25, duration: 0.5 }}
+        className="mb-8 px-2 text-sm text-neutral-500"
       >
-        <Youtube className="h-5 w-5" />
-        Watch the adventure on YouTube
-      </motion.button>
-
-      <AnimatePresence>
-        {lightbox && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
-            onClick={() => setLightbox(false)}
-          >
-            <div className="relative max-h-[85vh] max-w-[90vw]">
-              <Image
-                src={funFacts.photo.src}
-                alt={funFacts.photo.alt}
-                width={1200}
-                height={900}
-                className="max-h-[85vh] w-auto max-w-[90vw] rounded-xl object-contain"
-                unoptimized
-              />
-              <button className="absolute top-3 right-3 cursor-pointer rounded-full bg-black/70 p-2 text-white">
-                <X className="h-5 w-5" />
+        The questions clients ask most, answered straight. Quotes, timelines, ownership and what
+        working with me actually looks like.
+      </motion.p>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
+        }}
+        className="overflow-hidden rounded-2xl border border-neutral-200 bg-white px-6"
+      >
+        {faq.map((item, i) => {
+          const isOpen = openIndex === i;
+          return (
+            <motion.div
+              key={item.q}
+              variants={{
+                hidden: { opacity: 0, y: 12 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
+              }}
+              className={cn("border-b border-neutral-100", i === faq.length - 1 && "border-b-0")}
+            >
+              <button
+                onClick={() => setOpenIndex(isOpen ? null : i)}
+                className="flex w-full cursor-pointer items-center justify-between gap-4 py-5 text-left"
+              >
+                <span className="text-neutral-900 text-sm font-medium sm:text-base">{item.q}</span>
+                <ChevronDown
+                  className={cn(
+                    "text-neutral-400 h-4 w-4 shrink-0 transition-transform duration-300",
+                    isOpen && "rotate-180",
+                  )}
+                />
               </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: APPLE_EASE }}
+                    className="overflow-hidden"
+                  >
+                    <p className="pb-5 pr-8 text-sm leading-relaxed text-neutral-500">{item.a}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })}
+      </motion.div>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+        className="mt-6 px-2 text-center text-sm text-neutral-500"
+      >
+        Quotes, process and ownership, all covered above 👇 If your question is not here, email me and
+        you will hear back within 24 hours.
+      </motion.p>
     </motion.div>
   );
 }
@@ -805,7 +1436,7 @@ export function FunCard() {
 /* Router                                                               */
 /* ------------------------------------------------------------------ */
 
-export type ToolName = "projects" | "skills" | "presentation" | "fun" | "contact";
+export type ToolName = "projects" | "skills" | "presentation" | "faq" | "contact";
 
 /* Memoized: the parent re-renders on every typing tick — the heavy
    cards (carousel, images) must not re-render with it. Their props
@@ -818,8 +1449,8 @@ export const ToolCard = memo(function ToolCard({ name }: { name: ToolName }) {
       return <SkillsCard />;
     case "presentation":
       return <PresentationCard />;
-    case "fun":
-      return <FunCard />;
+    case "faq":
+      return <FaqCard />;
     case "contact":
       return <ContactCard />;
     default:
@@ -827,4 +1458,4 @@ export const ToolCard = memo(function ToolCard({ name }: { name: ToolName }) {
   }
 });
 
-export const toolIcons = { Briefcase, Layers, PartyPopper, UserRoundSearch, Laugh };
+export const toolIcons = { Briefcase, Layers, UserRoundSearch, Laugh };
